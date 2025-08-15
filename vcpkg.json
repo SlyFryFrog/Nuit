@@ -1,0 +1,18 @@
+{
+  "name" : "nuit",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "8f6860b7de3b3851ef3694054732f7bf08d4a6d3",
+  "dependencies" : [ {
+    "name" : "glm",
+    "version>=" : "1.0.1#3"
+  }, {
+    "name" : "glfw3",
+    "version>=" : "3.4#1"
+  }, {
+    "name" : "glew",
+    "version>=" : "2.2.0#6"
+  }, {
+    "name" : "opengl",
+    "version>=" : "2022-12-04#3"
+  } ]
+}
