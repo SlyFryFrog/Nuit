@@ -2,33 +2,35 @@ module;
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
+#include <iostream>
+#include <ostream>
 #include <string>
 export module nuit:gl_shader;
 
+import :utils;
+
 namespace Nuit
 {
-	export class GLShader
-	{
-	public:
-
-	};
-
 	export class GLShaderProgram
 	{
 		GLuint m_program;
 
 	public:
-		explicit GLShaderProgram()
-		{
-			m_program = glCreateProgram();
-		}
+		explicit GLShaderProgram() = default;
 
 		~GLShaderProgram()
 		{
 			glDeleteProgram(m_program);
+		}
+
+		void create()
+		{
+			m_program = glCreateProgram();
+		}
+
+		void use()
+		{
+			glUseProgram(m_program);
 		}
 
 		void attach_shader(const GLuint shader) const
@@ -36,14 +38,37 @@ namespace Nuit
 			glAttachShader(m_program, shader);
 		}
 
-		void compile(const std::string& file, GLenum type)
+		void compile_and_attach(const std::string& file, const GLenum type) const
 		{
-			std::string code;	// TODO
+			const auto rawData = read(file);
+
+			if (!rawData.has_value())
+			{
+				std::println(std::cerr, "Failed to read shader file!");
+				return;
+			}
+
+			const char* data = rawData.value().c_str();
+
+			const GLuint shader = glCreateShader(type);
+			glShaderSource(shader, 1, &data, nullptr);
+			glCompileShader(shader);
+
+			GLint success;
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+			if (!success)
+			{
+				char log[512];
+				glGetShaderInfoLog(shader, 512, nullptr, log);
+				throw std::runtime_error(log);
+			}
+
+			glAttachShader(m_program, shader);
 		}
 
 		void link() const
 		{
-			glLinkProgram(m_program);	// TODO
+			glLinkProgram(m_program);
 		}
 
 
@@ -91,7 +116,6 @@ namespace Nuit
 		{
 			glUniform4uiv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
-
 
 		void set_uniform(const std::string& name, const float value) const
 		{
