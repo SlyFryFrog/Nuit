@@ -11,6 +11,15 @@ import :utils;
 
 namespace Nuit
 {
+	export enum ShaderType
+	{
+		VERTEX = GL_VERTEX_SHADER,
+		FRAGMENT = GL_FRAGMENT_SHADER,
+		GEOMETRY = GL_GEOMETRY_SHADER,
+		TESSELLATION = GL_TESS_CONTROL_SHADER,
+		COMPUTE = GL_COMPUTE_SHADER
+	};
+
 	export class GLShaderProgram
 	{
 		GLuint m_program;
@@ -28,9 +37,14 @@ namespace Nuit
 			m_program = glCreateProgram();
 		}
 
-		void use()
+		void bind() const
 		{
 			glUseProgram(m_program);
+		}
+
+		static void unbind()
+		{
+			glUseProgram(0);
 		}
 
 		void attach_shader(const GLuint shader) const
@@ -64,6 +78,7 @@ namespace Nuit
 			}
 
 			glAttachShader(m_program, shader);
+			glDeleteShader(shader);
 		}
 
 		void link() const

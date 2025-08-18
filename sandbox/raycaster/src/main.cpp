@@ -1,10 +1,10 @@
-#include <GL/glew.h>
 #include <filesystem>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 
 import nuit;
+import player;
 
 using namespace Nuit;
 
@@ -16,8 +16,8 @@ glm::mat4 persProjection;
 glm::mat4 view;
 glm::mat4 model;
 glm::mat4 orthoProj;
-glm::vec3 movement{};
 Grid grid;
+Player player;
 
 void draw_left();
 void draw_right();
@@ -30,16 +30,17 @@ int main()
 	GLRenderer::_init();
 
 	shader.create();
-	shader.compile_and_attach("shaders/vertexShader.vert", GL_VERTEX_SHADER);
-	shader.compile_and_attach("shaders/fragmentShader.frag", GL_FRAGMENT_SHADER);
+	shader.compile_and_attach("shaders/vertexShader.vert", VERTEX);
+	shader.compile_and_attach("shaders/fragmentShader.frag", FRAGMENT);
 	shader.link();
-	shader.use();
+	shader.bind();
 
 	timer.start();
 
 	// Grid from -1,-1 to 1,1 (full normalized ortho space)
 	grid = Grid(glm::vec2{-1.0f, -1.0f}, glm::vec2{2.0f, 2.0f});
 	grid.generate(20, 20);
+	player._init();
 
 	while (!window.is_done())
 	{
@@ -51,27 +52,10 @@ int main()
 		}
 
 		glm::vec3 currentMovement;
-		constexpr float speed = 1.0f;
-		double delta = timer.delta();
-		if (InputManager::is_pressed(KEY_A))
-		{
-			currentMovement.x -= delta * speed;
-		}
-		if (InputManager::is_pressed(KEY_D))
-		{
-			currentMovement.x += delta * speed;
-		}
-		if (InputManager::is_pressed(KEY_S))
-		{
-			currentMovement.y -= delta * speed;
-		}
-		if (InputManager::is_pressed(KEY_W))
-		{
-			currentMovement.y += delta * speed;
-		}
+		constexpr float speed = 0.1f;
+		const double delta = timer.delta();
 
-		movement = currentMovement;
-
+		player._process(delta);
 		draw_left();
 		draw_right();
 
@@ -97,16 +81,15 @@ void draw_left()
 	Window::set_viewport(0, 0, static_cast<int>(vpWidth), static_cast<int>(vpHeight));
 
 	model = glm::mat4(1.0f);
-	view = glm::mat4(1.0f);
+	view = glm::translate(model, -glm::vec3{player.Position.x, player.Position.z, 0.0f});
 
-	view = glm::translate(model, -movement);
-
-	shader.use();
+	shader.bind();
 	shader.set_uniform("uProjection", proj);
 	shader.set_uniform("uView", view);
 	shader.set_uniform("uModel", model);
 
 	grid.draw();
+	player._draw(shader);
 }
 
 void draw_right()
@@ -119,10 +102,10 @@ void draw_right()
 	Window::set_viewport(halfWidth, 0, halfWidth, fullHeight);
 	persProjection = glm::perspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
 
-	view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	view = glm::lookAt(player.Position, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	model = glm::mat4(1.0f);
 
-	shader.use();
+	shader.bind();
 	shader.set_uniform("uProjection", persProjection);
 	shader.set_uniform("uView", view);
 	shader.set_uniform("uModel", model);
