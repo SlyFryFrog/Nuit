@@ -11,8 +11,7 @@ import :utils;
 
 namespace Nuit
 {
-	export enum ShaderType
-	{
+	export enum ShaderType {
 		VERTEX = GL_VERTEX_SHADER,
 		FRAGMENT = GL_FRAGMENT_SHADER,
 		GEOMETRY = GL_GEOMETRY_SHADER,
@@ -29,12 +28,21 @@ namespace Nuit
 
 		~GLShaderProgram()
 		{
-			glDeleteProgram(m_program);
+			if (m_program)
+			{
+				glDeleteProgram(m_program);
+			}
+		}
+
+		[[nodiscard]] GLuint id() const
+		{
+			return m_program;
 		}
 
 		void create()
 		{
-			m_program = glCreateProgram();
+			if (!m_program)
+				m_program = glCreateProgram();
 		}
 
 		void bind() const
@@ -177,4 +185,4 @@ namespace Nuit
 			glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(value));
 		}
 	};
-}
+} // namespace Nuit

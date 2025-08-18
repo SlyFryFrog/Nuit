@@ -11,8 +11,8 @@ using namespace Nuit;
 
 export class Player
 {
-	GLuint m_vao;
-	GLuint m_vbo;
+	GLuint m_vao{};
+	GLuint m_vbo{};
 
 public:
 	glm::vec3 Position{};
@@ -31,7 +31,8 @@ public:
 
 	void _init()
 	{
-		float vertices[] = {
+		Position = glm::vec3(0.0f, 0.0f, 0.0f);
+		constexpr float vertices[] = {
 			-0.05f, -0.05f,
 			 0.05f, -0.05f,
 			 0.05f,  0.05f,
@@ -88,6 +89,7 @@ public:
 
 		shader.bind();
 		shader.set_uniform("uModel", model);
+		shader.set_uniform("uColor", glm::vec4{0.0f, 1.0f, 1.0f, 1.0f});
 
 		glBindVertexArray(m_vao);
 	    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

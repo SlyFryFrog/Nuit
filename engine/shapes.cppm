@@ -1,6 +1,8 @@
 module;
 #include <GL/glew.h>
 #include <glm/vec2.hpp>
+#include <iostream>
+#include <print>
 #include <vector>
 export module nuit:shapes;
 
@@ -29,8 +31,11 @@ namespace Nuit
 		glm::vec2 Size{};
 
 		Grid() = default;
-		Grid(const glm::vec2& pos, const glm::vec2& size) : Position(pos), Size(size)
+		Grid(const glm::vec2& pos, const glm::vec2& size) : Size(size)
 		{
+			// Moves anchor to center.
+			// Without this, it anchors origin in top-right.
+			Position = pos + size / 2.0f;
 		}
 
 		~Grid()
@@ -85,10 +90,68 @@ namespace Nuit
 			return m_vertices;
 		}
 
-		void draw() const
+		void _draw() const
 		{
 			glBindVertexArray(m_vao);
 			glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_vertices.size()));
+		}
+
+		template<size_t R, size_t C>
+		void draw_filled(const int (&map)[R][C]) const
+		{
+			const int rows = R;
+			const int cols = C;
+			const float dx = Size.x / static_cast<float>(cols);
+			const float dy = Size.y / static_cast<float>(rows);
+
+			for (int r = 0; r < rows; r++)
+			{
+				for (int c = 0; c < cols; c++)
+				{
+					switch (map[r][c])
+					{
+					case 1:
+						{
+							const float x = Position.x + c * dx;
+							const float y = Position.y + (rows - 1 - r) * dy;	// Reverse direction
+							// clang-format off
+							// Define vertices for a square
+							// Used to visualize position of player relative to grid of map
+							const float vertices[] = {
+								x, y,				// bottom left
+								x + dx, y,			// bottom right
+								x + dx, y + dy,		// top right
+								x, y + dy			// top left
+							};
+							// clang-format on
+
+
+							GLuint vao, vbo;
+							glGenVertexArrays(1, &vao);
+							glBindVertexArray(vao);
+
+							glGenBuffers(1, &vbo);
+							glBindBuffer(GL_ARRAY_BUFFER, vbo);
+							glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+										 GL_STATIC_DRAW);
+
+							glEnableVertexAttribArray(0);
+							glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float),
+												  nullptr);
+
+							glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+							glDeleteBuffers(1, &vbo);
+							glDeleteVertexArrays(1, &vao);
+							break;
+						}
+					default:
+						break;
+					}
+				}
+			}
+
+			_draw();
 		}
 	};
 } // namespace Nuit
