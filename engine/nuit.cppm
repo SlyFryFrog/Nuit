@@ -10,3 +10,5 @@ export import :utils;
 export import :gl_renderer;
 export import :gl_shader;
 export import :shapes;
+export import :math;
+export import :ray_2d;

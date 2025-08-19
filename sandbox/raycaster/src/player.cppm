@@ -31,7 +31,6 @@ public:
 
 	void _init()
 	{
-		Position = glm::vec3(0.0f, 0.0f, 0.0f);
 		constexpr float vertices[] = {
 			-0.05f, -0.05f,
 			 0.05f, -0.05f,

@@ -1,10 +1,14 @@
 module;
 #include <GL/glew.h>
+#include <complex>
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/vec2.hpp>
 #include <iostream>
 #include <print>
 #include <vector>
 export module nuit:shapes;
+
+import :gl_shader;
 
 namespace Nuit
 {
@@ -90,19 +94,24 @@ namespace Nuit
 			return m_vertices;
 		}
 
-		void _draw() const
+		void _draw(const GLShaderProgram& shader) const
 		{
+			shader.bind();
+			shader.set_uniform("uColor", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 			glBindVertexArray(m_vao);
 			glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_vertices.size()));
 		}
 
-		template<size_t R, size_t C>
-		void draw_filled(const int (&map)[R][C]) const
+		template <size_t R, size_t C>
+		void draw_filled(const GLShaderProgram& shader, const int (&map)[R][C]) const
 		{
 			const int rows = R;
 			const int cols = C;
 			const float dx = Size.x / static_cast<float>(cols);
 			const float dy = Size.y / static_cast<float>(rows);
+
+			shader.bind();
+			shader.set_uniform("uColor", glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
 
 			for (int r = 0; r < rows; r++)
 			{
@@ -110,10 +119,12 @@ namespace Nuit
 				{
 					switch (map[r][c])
 					{
+					case 0:
+						shader.set_uniform("uColor", glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 					case 1:
 						{
 							const float x = Position.x + c * dx;
-							const float y = Position.y + (rows - 1 - r) * dy;	// Reverse direction
+							const float y = Position.y + (rows - 1 - r) * dy; // Reverse direction
 							// clang-format off
 							// Define vertices for a square
 							// Used to visualize position of player relative to grid of map
@@ -143,15 +154,15 @@ namespace Nuit
 
 							glDeleteBuffers(1, &vbo);
 							glDeleteVertexArrays(1, &vao);
-							break;
 						}
 					default:
+						shader.set_uniform("uColor", glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
 						break;
 					}
 				}
 			}
 
-			_draw();
+			_draw(shader);
 		}
 	};
 } // namespace Nuit

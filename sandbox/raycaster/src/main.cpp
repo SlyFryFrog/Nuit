@@ -15,22 +15,17 @@ Timer timer;
 glm::mat4 view;
 Grid grid;
 Player player;
+Ray2D ray;
+float angle;
 
-void draw_left();
-void draw_right();
+void draw_left(double delta);
+void draw_right(double delta);
 
-int map[][10] = {
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 1, 0, 0, 0, 1, 0, 0, 0, 1},
-	{1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 0, 1, 1, 0, 1},
-	{1, 0, 0, 0, 0, 0, 0, 1, 0, 1},
-	{1, 0, 1, 1, 0, 0, 0, 0, 0, 1},
-	{1, 0, 0, 0, 0, 1, 1, 0, 0, 1},
-	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-};
+int map[][10] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+				 {1, 1, 0, 0, 0, 1, 0, 0, 0, 1}, {1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+				 {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 0, 0, 0, 0, 0, 1, 1, 0, 1},
+				 {1, 0, 0, 0, 0, 0, 0, 1, 0, 1}, {1, 0, 1, 1, 0, 0, 0, 0, 0, 1},
+				 {1, 0, 0, 0, 0, 1, 1, 0, 0, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 int main()
 {
@@ -64,11 +59,8 @@ int main()
 		const double delta = timer.delta();
 
 		player._process(delta);
-		if (InputManager::is_pressed(KEY_F))
-		{
-			draw_left();
-		}
-		draw_right();
+		draw_left(delta);
+		draw_right(delta);
 
 		window._process();
 	}
@@ -76,7 +68,7 @@ int main()
 	return 0;
 }
 
-void draw_left()
+void draw_left(double delta)
 {
 	// Left: top-down ortho
 	constexpr float zoom = 0.5f;
@@ -90,33 +82,51 @@ void draw_left()
 
 	view = glm::translate(glm::mat4(1.0f), -glm::vec3{player.Position.x, player.Position.z, 0.0f});
 
+	constexpr float rotationSpeed = 1.5f; // radians per second
+	constexpr float rayLength = 0.1f;
+
+	if (InputManager::is_pressed(KEY_E))
+	{
+		angle -= rotationSpeed * delta;
+	}
+	if (InputManager::is_pressed(KEY_Q))
+	{
+		angle += rotationSpeed * delta;
+	}
+
+	// Wrap angle between 0 and 2*PI
+	if (angle < 0)
+	{
+		angle += 2 * PI;
+	}
+	if (angle > 2 * PI)
+	{
+		angle -= 2 * PI;
+	}
+
+	ray.Position = glm::vec2{player.Position.x, player.Position.z};
+	ray.Direction = {cos(angle), sin(angle)};
+
+
 	shader.bind();
 	shader.set_uniform("uProjection", proj);
 	shader.set_uniform("uView", view);
 	shader.set_uniform("uColor", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-	grid.draw_filled(map);
+	grid.draw_filled(shader, map);
 	player._draw(shader);
+	ray.check_hit(map, grid.Size);
+	ray._draw(shader);
 }
 
-void draw_right()
+void draw_right(double delta)
 {
 	// Right: perspective 3D
 	const int halfWidth = window.Width / 2;
 	const int fullHeight = window.Height;
 	const float aspect = static_cast<float>(halfWidth) / static_cast<float>(fullHeight);
 
-	glm::mat4 proj;
-	if (InputManager::is_pressed(KEY_F))
-	{
-		Window::set_viewport(halfWidth, 0, halfWidth, fullHeight);
-		proj = glm::perspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
-	}
-	else
-	{
-		Window::set_viewport(0, 0, window.Width, window.Height);
-		proj = glm::perspective(glm::radians(60.0f), (float)window.Width / window.Height, 0.1f,
-								100.0f);
-	}
+	Window::set_viewport(halfWidth, 0, halfWidth, fullHeight);
+	const glm::mat4 proj = glm::perspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
 
 	view = glm::lookAt(player.Position, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	constexpr glm::mat4 model = glm::mat4(1.0f);
@@ -126,5 +136,5 @@ void draw_right()
 	shader.set_uniform("uView", view);
 	shader.set_uniform("uModel", model);
 
-	grid._draw();
+	grid._draw(shader);
 }
