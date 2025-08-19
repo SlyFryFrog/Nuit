@@ -21,7 +21,12 @@ float angle;
 void draw_left(double delta);
 void draw_right(double delta);
 
-int map[][10] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+int map[][20] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+				 {1, 1, 0, 0, 0, 1, 0, 0, 0, 1}, {1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+				 {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 0, 0, 0, 0, 0, 1, 1, 0, 1},
+				 {1, 0, 0, 0, 0, 0, 0, 1, 0, 1}, {1, 0, 1, 1, 0, 0, 0, 0, 0, 1},
+				 {1, 0, 0, 0, 0, 1, 1, 0, 0, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
 				 {1, 1, 0, 0, 0, 1, 0, 0, 0, 1}, {1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
 				 {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 0, 0, 0, 0, 0, 1, 1, 0, 1},
 				 {1, 0, 0, 0, 0, 0, 0, 1, 0, 1}, {1, 0, 1, 1, 0, 0, 0, 0, 0, 1},
@@ -43,8 +48,8 @@ int main()
 	timer.start();
 
 	// Grid from -1,-1 to 1,1 (full normalized ortho space)
-	grid = Grid(glm::vec2{-1.0f, -1.0f}, glm::vec2{1.0f, 1.0f});
-	grid.generate(10, 10);
+	grid = Grid(glm::vec2{0, 0}, glm::vec2{20.0f, 20.0f});
+	grid.generate(20, 10);
 	player._init();
 
 	while (!window.is_done())
@@ -71,7 +76,7 @@ int main()
 void draw_left(double delta)
 {
 	// Left: top-down ortho
-	constexpr float zoom = 0.5f;
+	constexpr float zoom = 10.0f;
 
 	const float vpWidth = static_cast<float>(window.Width) / 2.0f;
 	const float vpHeight = static_cast<float>(window.Height);

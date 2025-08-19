@@ -1,6 +1,4 @@
 module;
-#include <iostream>
-
 #include <GL/glew.h>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
@@ -24,12 +22,13 @@ namespace Nuit
 		template <size_t R, size_t C>
 		void check_hit(int (&map)[R][C], const glm::vec2 size)
 		{
-			const glm::vec2 stepSize = {sqrt(1 + pow((Direction.y / Direction.x), 2)),
-								  sqrt(1 + pow((Direction.x / Direction.y), 2))};
-			glm::ivec2 mapCheck = Position;
-			std::cout << Position.x << ", " << Position.y << std::endl;
-			glm::vec2 rayLength{};
+			const glm::vec2 stepSize = {
+				sqrt(1 + pow((Direction.y / Direction.x), 2)),
+				sqrt(1 + pow((Direction.x / Direction.y), 2))
+			};
 
+			glm::ivec2 mapCheck = glm::ivec2(Position);
+			glm::vec2 rayLength{};
 			glm::ivec2 step{};
 
 			// Determine directions of steps
@@ -86,25 +85,27 @@ namespace Nuit
 				}
 			}
 
-			glm::vec2 intersection{};
 			if (tileFound)
 			{
-				intersection = Position + Direction * distance;
+				EndPosition = Position + Direction * distance;
 			}
-
-			EndPosition = Direction;
+			else
+			{
+				EndPosition = Position + Direction * maxDistance;
+			}
 		}
 
 		void _draw(const GLShaderProgram& shader) const
 		{
+			const glm::vec2 localEnd = EndPosition - Position;
+
 			const float vertices[] = {
-				0.0, 0.0,				 // Origin relative to the model matrix
-				EndPosition.x, EndPosition.y // End point
+				0.0f, 0.0f,           // Origin
+				localEnd.x, localEnd.y // Endpoint relative to Position
 			};
 
-			// Translate ray to position
 			const glm::mat4 model = glm::translate(glm::mat4(1.0f),
-												   glm::vec3{Position.x, Position.y, 0.0f});
+												   glm::vec3{Position, 0.0f});
 
 			GLuint vao, vbo;
 			glGenVertexArrays(1, &vao);

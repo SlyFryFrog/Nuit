@@ -1,8 +1,8 @@
 module;
 #include <GL/glew.h>
-#include <array>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
+#include <iostream>
 export module player;
 
 import nuit;
@@ -17,9 +17,9 @@ export class Player
 public:
 	glm::vec3 Position{};
 	glm::vec3 Rotation{};
-	glm::vec3 Scale{0.05f};
+	glm::vec3 Scale{1.0f};
 
-	float Speed = 0.5f;
+	float Speed = 5.0f;
 
 public:
 	Player() = default;

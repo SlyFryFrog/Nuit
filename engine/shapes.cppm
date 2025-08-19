@@ -35,11 +35,8 @@ namespace Nuit
 		glm::vec2 Size{};
 
 		Grid() = default;
-		Grid(const glm::vec2& pos, const glm::vec2& size) : Size(size)
+		Grid(const glm::vec2& position, const glm::vec2& size) : Position(position), Size(size)
 		{
-			// Moves anchor to center.
-			// Without this, it anchors origin in top-right.
-			Position = pos + size / 2.0f;
 		}
 
 		~Grid()
@@ -62,7 +59,7 @@ namespace Nuit
 			const float dy = Size.y / static_cast<float>(rows);
 
 			// Generate vertical lines
-			for (int c = 0; c <= cols; ++c)
+			for (int c = 0; c <= cols; c++)
 			{
 				float x = Position.x + c * dx;
 				m_vertices.emplace_back(x, Position.y);
@@ -70,7 +67,7 @@ namespace Nuit
 			}
 
 			// Generate horizontal lines
-			for (int r = 0; r <= rows; ++r)
+			for (int r = 0; r <= rows; r++)
 			{
 				float y = Position.y + r * dy;
 				m_vertices.emplace_back(Position.x, y);
@@ -124,7 +121,7 @@ namespace Nuit
 					case 1:
 						{
 							const float x = Position.x + c * dx;
-							const float y = Position.y + (rows - 1 - r) * dy; // Reverse direction
+							const float y = Position.y + r * dy; // (rows - 1 - r) * dy; // Reverse direction
 							// clang-format off
 							// Define vertices for a square
 							// Used to visualize position of player relative to grid of map
