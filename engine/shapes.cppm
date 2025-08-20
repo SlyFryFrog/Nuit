@@ -1,9 +1,7 @@
 module;
 #include <GL/glew.h>
-#include <complex>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/vec2.hpp>
-#include <iostream>
 #include <print>
 #include <vector>
 export module nuit:shapes;
@@ -55,6 +53,7 @@ namespace Nuit
 		{
 			m_vertices.clear();
 
+			// Get average X and Y of each space
 			const float dx = Size.x / static_cast<float>(cols);
 			const float dy = Size.y / static_cast<float>(rows);
 
@@ -77,11 +76,14 @@ namespace Nuit
 			glGenVertexArrays(1, &m_vao);
 			glBindVertexArray(m_vao);
 			glGenBuffers(1, &m_vbo);
+
 			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 			glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(glm::vec2), m_vertices.data(),
 						 GL_STATIC_DRAW);
+
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 			glEnableVertexAttribArray(0);
+
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
 		}
@@ -94,7 +96,9 @@ namespace Nuit
 		void _draw(const GLShaderProgram& shader) const
 		{
 			shader.bind();
+			// Color of gridlines
 			shader.set_uniform("uColor", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+
 			glBindVertexArray(m_vao);
 			glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_vertices.size()));
 		}
@@ -121,7 +125,8 @@ namespace Nuit
 					case 1:
 						{
 							const float x = Position.x + c * dx;
-							const float y = Position.y + r * dy; // (rows - 1 - r) * dy; // Reverse direction
+							const float y = Position.y +
+								r * dy; // (rows - 1 - r) * dy; // Reverse direction
 							// clang-format off
 							// Define vertices for a square
 							// Used to visualize position of player relative to grid of map
@@ -138,11 +143,13 @@ namespace Nuit
 							glGenVertexArrays(1, &vao);
 							glBindVertexArray(vao);
 
+							// Bind buffers and define buffer data for vbo
 							glGenBuffers(1, &vbo);
 							glBindBuffer(GL_ARRAY_BUFFER, vbo);
 							glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
 										 GL_STATIC_DRAW);
 
+							// Set the attrib pointer for the shader
 							glEnableVertexAttribArray(0);
 							glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float),
 												  nullptr);
@@ -162,4 +169,27 @@ namespace Nuit
 			_draw(shader);
 		}
 	};
+
+	export void draw_vertical_line(const glm::vec2 hitPoint, const float distance,
+								   const int screenHeight, const GLShaderProgram& shader)
+	{
+		GLuint vao, vbo;
+		glGenVertexArrays(1, &vao);
+		glGenBuffers(1, &vbo);
+
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+		shader.bind();
+		shader.set_uniform("uColor", glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
+	}
 } // namespace Nuit

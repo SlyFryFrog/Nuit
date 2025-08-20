@@ -42,7 +42,9 @@ namespace Nuit
 		void create()
 		{
 			if (!m_program)
+			{
 				m_program = glCreateProgram();
+			}
 		}
 
 		void bind() const
@@ -82,7 +84,8 @@ namespace Nuit
 			{
 				char log[512];
 				glGetShaderInfoLog(shader, 512, nullptr, log);
-				throw std::runtime_error(log);
+				std::println(std::cerr, "{0}", log);
+				return;
 			}
 
 			glAttachShader(m_program, shader);

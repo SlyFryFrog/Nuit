@@ -3,9 +3,11 @@ module;
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <map>
 export module player;
 
 import nuit;
+import map;
 
 using namespace Nuit;
 
@@ -69,16 +71,7 @@ public:
 		{
 			movement.z += Speed * delta;
 		}
-		if (InputManager::is_pressed(KEY_LEFT_SHIFT) || InputManager::is_pressed(KEY_RIGHT_SHIFT))
-		{
-			movement.y -= Speed * delta;
-		}
-		if (InputManager::is_pressed(KEY_SPACE))
-		{
-			movement.y += Speed * delta;
-		}
-
-		Position += movement;
+		move_and_slide(movement);
 	}
 
 	void _draw(const GLShaderProgram& shader) const
@@ -93,4 +86,22 @@ public:
 		glBindVertexArray(m_vao);
 	    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	}
+
+	void move_and_slide(glm::vec3 movement)
+	{
+		const glm::vec3 temp = Position + movement;
+
+		int mapY = static_cast<int>(temp.z);
+		int mapX = static_cast<int>(temp.x);
+
+		if (mapX < 0 || mapY < 0 || mapX >= 10 || mapY >= 10)
+		{
+			std::println("{}, {} : {}", mapX, mapY, map[mapY][mapX]);
+			Position = temp;
+		}
+		else if (map[mapY][mapX] != 1)
+		{
+			std::println("{}, {} : {}", mapX, mapY, map[mapY][mapX]);
+			Position = temp;
+		}}
 };

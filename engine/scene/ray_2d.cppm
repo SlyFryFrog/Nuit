@@ -16,11 +16,10 @@ namespace Nuit
 		glm::vec2 Position;
 		glm::vec2 Direction;
 		glm::vec2 EndPosition;
-		float Angle;
-		int RaysCount;
+		bool Hit{false};
 
 		template <size_t R, size_t C>
-		void check_hit(int (&map)[R][C], const glm::vec2 size)
+		void update_end_position(int (&map)[R][C], const glm::vec2 size)
 		{
 			const glm::vec2 stepSize = {
 				sqrt(1 + pow((Direction.y / Direction.x), 2)),
@@ -87,10 +86,12 @@ namespace Nuit
 
 			if (tileFound)
 			{
+				Hit = true;
 				EndPosition = Position + Direction * distance;
 			}
 			else
 			{
+				Hit = false;
 				EndPosition = Position + Direction * maxDistance;
 			}
 		}

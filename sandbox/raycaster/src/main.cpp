@@ -2,35 +2,27 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
+#include <print>
 
 import nuit;
 import player;
+import map;
 
 using namespace Nuit;
 
 Window window;
-GLShaderProgram shader;
+GLShaderProgram shader_2d;
+GLShaderProgram shader_3d;
 Timer timer;
-
-glm::mat4 view;
 Grid grid;
 Player player;
-Ray2D ray;
 float angle;
+constexpr int FOV = 90;
 
-void draw_left(double delta);
-void draw_right(double delta);
+void draw_left(double delta, const GLShaderProgram& shader);
+void draw_right(double delta, const GLShaderProgram& shader);
 
-int map[][20] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-				 {1, 1, 0, 0, 0, 1, 0, 0, 0, 1}, {1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
-				 {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 0, 0, 0, 0, 0, 1, 1, 0, 1},
-				 {1, 0, 0, 0, 0, 0, 0, 1, 0, 1}, {1, 0, 1, 1, 0, 0, 0, 0, 0, 1},
-				 {1, 0, 0, 0, 0, 1, 1, 0, 0, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-				 {1, 1, 0, 0, 0, 1, 0, 0, 0, 1}, {1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
-				 {1, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 0, 0, 0, 0, 0, 1, 1, 0, 1},
-				 {1, 0, 0, 0, 0, 0, 0, 1, 0, 1}, {1, 0, 1, 1, 0, 0, 0, 0, 0, 1},
-				 {1, 0, 0, 0, 0, 1, 1, 0, 0, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+std::array<Ray2D, FOV> rays;
 
 int main()
 {
@@ -39,18 +31,23 @@ int main()
 	window._init();
 	GLRenderer::_init();
 
-	shader.create();
-	shader.compile_and_attach("shaders/vertexShader.vert", VERTEX);
-	shader.compile_and_attach("shaders/fragmentShader.frag", FRAGMENT);
-	shader.link();
-	shader.bind();
+	shader_2d.create();
+	shader_2d.compile_and_attach("shaders/2d/vertex.vert", VERTEX);
+	shader_2d.compile_and_attach("shaders/2d/fragment.frag", FRAGMENT);
+	shader_2d.link();
+
+	shader_3d.create();
+	shader_3d.compile_and_attach("shaders/3d/vertex.vert", VERTEX);
+	shader_3d.compile_and_attach("shaders/3d/fragment.frag", FRAGMENT);
+	shader_3d.link();
 
 	timer.start();
 
 	// Grid from -1,-1 to 1,1 (full normalized ortho space)
-	grid = Grid(glm::vec2{0, 0}, glm::vec2{20.0f, 20.0f});
-	grid.generate(20, 10);
+	grid = Grid(glm::vec2{0, 0}, glm::vec2{10.0f, 10.0f});
+	grid.generate(10, 10);
 	player._init();
+	player.Position = glm::vec3{5, 0, 5};
 
 	while (!window.is_done())
 	{
@@ -64,8 +61,9 @@ int main()
 		const double delta = timer.delta();
 
 		player._process(delta);
-		draw_left(delta);
-		draw_right(delta);
+
+		draw_left(delta, shader_2d);
+		draw_right(delta, shader_3d);
 
 		window._process();
 	}
@@ -73,7 +71,7 @@ int main()
 	return 0;
 }
 
-void draw_left(double delta)
+void draw_left(const double delta, const GLShaderProgram& shader)
 {
 	// Left: top-down ortho
 	constexpr float zoom = 10.0f;
@@ -85,7 +83,9 @@ void draw_left(double delta)
 	Window::set_viewport(0, 0, static_cast<int>(vpWidth), static_cast<int>(vpHeight));
 	const glm::mat4 proj = glm::ortho(-zoom * aspect, zoom * aspect, -zoom, zoom, -1.0f, 1.0f);
 
-	view = glm::translate(glm::mat4(1.0f), -glm::vec3{player.Position.x, player.Position.z, 0.0f});
+	glm::mat4 view = glm::translate(glm::mat4(1.0f),
+									-glm::vec3{player.Position.x, player.Position.z, 0.0f});
+	constexpr glm::mat4 model = glm::mat4(1.0f);
 
 	constexpr float rotationSpeed = 1.5f; // radians per second
 	constexpr float rayLength = 0.1f;
@@ -109,37 +109,60 @@ void draw_left(double delta)
 		angle -= 2 * PI;
 	}
 
-	ray.Position = glm::vec2{player.Position.x, player.Position.z};
-	ray.Direction = {cos(angle), sin(angle)};
-
-
-	shader.bind();
-	shader.set_uniform("uProjection", proj);
-	shader.set_uniform("uView", view);
-	shader.set_uniform("uColor", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-	grid.draw_filled(shader, map);
-	player._draw(shader);
-	ray.check_hit(map, grid.Size);
-	ray._draw(shader);
-}
-
-void draw_right(double delta)
-{
-	// Right: perspective 3D
-	const int halfWidth = window.Width / 2;
-	const int fullHeight = window.Height;
-	const float aspect = static_cast<float>(halfWidth) / static_cast<float>(fullHeight);
-
-	Window::set_viewport(halfWidth, 0, halfWidth, fullHeight);
-	const glm::mat4 proj = glm::perspective(glm::radians(60.0f), aspect, 0.1f, 100.0f);
-
-	view = glm::lookAt(player.Position, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	constexpr glm::mat4 model = glm::mat4(1.0f);
-
 	shader.bind();
 	shader.set_uniform("uProjection", proj);
 	shader.set_uniform("uView", view);
 	shader.set_uniform("uModel", model);
+	shader.set_uniform("uColor", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	grid.draw_filled(shader, map);
+	player._draw(shader);
 
-	grid._draw(shader);
+	for (int i = 0; i < rays.size() / 2; i++)
+	{
+		const float a = angle + i * (glm::radians(1.0f)); // step x degrees
+		rays[i].Position = glm::vec2{player.Position.x, player.Position.z};
+		rays[i].Direction = {cos(a), sin(a)};
+		rays[i].update_end_position(map, grid.Size);
+		rays[i]._draw(shader);
+	}
+
+	for (int i = rays.size(); i >=rays.size() / 2; i--)
+	{
+		const float a = angle + i * (glm::radians(1.0f)); // step x degrees
+		rays[i].Position = glm::vec2{player.Position.x, player.Position.z};
+		rays[i].Direction = {cos(a), sin(a)};
+		rays[i].update_end_position(map, grid.Size);
+		rays[i]._draw(shader);
+	}
+
+}
+
+void draw_right(const double delta, const GLShaderProgram& shader)
+{
+	const int halfWidth = window.Width / 2;
+	const int fullHeight = window.Height;
+	const float aspect = static_cast<float>(halfWidth) / fullHeight;
+
+	Window::set_viewport(halfWidth, 0, halfWidth, fullHeight);
+	const glm::mat4 proj = glm::perspective(glm::radians((float)FOV), aspect, 0.1f, 100.0f);
+
+	glm::mat4 view = glm::lookAt(player.Position,
+								 player.Position + glm::vec3{cos(angle), 0, sin(angle)},
+								 glm::vec3{0, 1, 0});
+
+	shader.bind();
+	shader.set_uniform("uProjection", proj);
+	shader.set_uniform("uView", view);
+	shader.set_uniform("uModel", glm::mat4(1.0f));
+
+	for (const auto& ray : rays)
+	{
+		// Only draw rays that hit a wall
+		if (ray.Hit)
+		{
+			const float distance = glm::length(glm::vec2(ray.EndPosition.x - player.Position.x,
+														 ray.EndPosition.y - player.Position.y));
+			draw_vertical_line(ray.EndPosition, distance, window.Height, shader);
+		}
+	}
 }
