@@ -76,7 +76,6 @@ void Player::move_and_slide(const glm::vec3 movement)
 
 	int mapY = static_cast<int>(std::floor(temp.z));
 	int mapX = static_cast<int>(std::floor(temp.x));
-	std::println("{}, {} : {} : {}, {}", mapX, mapY, map[mapY][mapX], Position.x, Position.z);
 
 	if (mapX < 0 || mapY < 0 || mapX >= 10 || mapY >= 10)
 	{
