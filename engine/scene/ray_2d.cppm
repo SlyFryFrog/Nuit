@@ -26,7 +26,9 @@ namespace Nuit
 				sqrt(1 + pow((Direction.x / Direction.y), 2))
 			};
 
-			glm::ivec2 mapCheck = glm::ivec2(Position);
+			// Convert Position (float/double) to an int
+			// Need to floor to now round low negative decimals up (ie -0.003 not 0, now -1)
+			glm::ivec2 mapCheck = glm::ivec2(std::floor(Position.x), std::floor(Position.y));
 			glm::vec2 rayLength{};
 			glm::ivec2 step{};
 

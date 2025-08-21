@@ -47,7 +47,7 @@ int main()
 	grid = Grid(glm::vec2{0, 0}, glm::vec2{10.0f, 10.0f});
 	grid.generate(10, 10);
 	player._init();
-	player.Position = glm::vec3{5, 0, 5};
+	player.Position = glm::vec3{0, 0, 0};
 
 	while (!window.is_done())
 	{
