@@ -19,7 +19,7 @@ namespace Nuit
 		bool Hit{false};
 
 		template <size_t R, size_t C>
-		void update_end_position(int (&map)[R][C], const glm::vec2 size)
+		void cast(int (&map)[R][C])
 		{
 			const glm::vec2 stepSize = {
 				sqrt(1 + pow((Direction.y / Direction.x), 2)),

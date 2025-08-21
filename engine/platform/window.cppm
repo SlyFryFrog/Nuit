@@ -3,6 +3,7 @@ module;
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <print>
+#include <utility>
 export module nuit:window;
 
 import :input_manager;
@@ -12,13 +13,17 @@ namespace Nuit
 	export class Window
 	{
 		GLFWwindow* m_window{};
-	public:
-		int Width{600}, Height{600};
+		std::string m_title{};
+		int m_width{600}, m_height{600};
 
 	public:
 		Window() = default;
 
-		Window(const int width, const int height) : Width(width), Height(height)
+		Window(std::string title, const int width, const int height) : m_title(std::move(title)), m_width(width), m_height(height)
+		{
+		}
+
+		Window(const int width, const int height) : m_width(width), m_height(height)
 		{
 		}
 
@@ -43,7 +48,7 @@ namespace Nuit
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-			m_window = glfwCreateWindow(Width, Height, "Hello World!", nullptr, nullptr);
+			m_window = glfwCreateWindow(m_width, m_height, "Hello World!", nullptr, nullptr);
 			if (!m_window)
 			{
 				glfwTerminate();
@@ -51,7 +56,9 @@ namespace Nuit
 				return;
 			}
 
-			glfwGetFramebufferSize(m_window, &Width, &Height);
+			set_title(m_title);
+
+			glfwGetFramebufferSize(m_window, &m_width, &m_height);
 			glfwSetFramebufferSizeCallback(m_window, _frame_buffer_size_callback);
 			glfwSetKeyCallback(m_window, InputManager::_process_input_callback);
 			glfwSetCursorPosCallback(m_window, InputManager::_process_mouse_callback);
@@ -83,6 +90,35 @@ namespace Nuit
 			return m_window;
 		}
 
+		void set_title(const std::string& title)
+		{
+			m_title = title;
+			glfwSetWindowTitle(m_window, title.c_str());
+		}
+
+		[[nodiscard]] std::string get_title() const
+		{
+			return m_title;
+		}
+
+		void set_size(const int width, const int height)
+		{
+			m_width = width;
+			m_height = height;
+
+			glfwSetWindowSize(m_window, m_width, m_height);
+		}
+
+		[[nodiscard]] int get_width() const
+		{
+			return m_width;
+		}
+
+		[[nodiscard]] int get_height() const
+		{
+			return m_height;
+		}
+
 		static void set_viewport(const int x, const int y, const int width, const int height)
 		{
 			glViewport(x, y, width, height);
@@ -90,14 +126,14 @@ namespace Nuit
 
 		void reset_viewport_to_window() const
 		{
-			glViewport(0, 0, Width, Height);
+			glViewport(0, 0, m_width, m_height);
 		}
 
 		static void _frame_buffer_size_callback(GLFWwindow* window, const int width, const int height)
 		{
-			auto impl = (Window*)glfwGetWindowUserPointer(window);
-			impl->Width = width;
-			impl->Height = height;
+			const auto impl = static_cast<Window*>(glfwGetWindowUserPointer(window));
+			impl->m_width = width;
+			impl->m_height = height;
 
 			glViewport(0, 0, width, height);
 		}

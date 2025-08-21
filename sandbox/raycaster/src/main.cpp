@@ -10,7 +10,7 @@ import map;
 
 using namespace Nuit;
 
-Window window;
+Window window("Raycaster", 600, 600);
 GLShaderProgram shader_2d;
 GLShaderProgram shader_3d;
 Timer timer;
@@ -76,8 +76,8 @@ void draw_left(const double delta, const GLShaderProgram& shader)
 	// Left: top-down ortho
 	constexpr float zoom = 10.0f;
 
-	const float vpWidth = static_cast<float>(window.Width) / 2.0f;
-	const float vpHeight = static_cast<float>(window.Height);
+	const float vpWidth = static_cast<float>(window.get_width()) / 2.0f;
+	const float vpHeight = static_cast<float>(window.get_height());
 	const float aspect = vpWidth / vpHeight;
 
 	Window::set_viewport(0, 0, static_cast<int>(vpWidth), static_cast<int>(vpHeight));
@@ -87,8 +87,7 @@ void draw_left(const double delta, const GLShaderProgram& shader)
 									-glm::vec3{player.Position.x, player.Position.z, 0.0f});
 	constexpr glm::mat4 model = glm::mat4(1.0f);
 
-	constexpr float rotationSpeed = 1.5f; // radians per second
-	constexpr float rayLength = 0.1f;
+	constexpr float rotationSpeed = 2.5f;
 
 	if (InputManager::is_pressed(KEY_E))
 	{
@@ -122,7 +121,7 @@ void draw_left(const double delta, const GLShaderProgram& shader)
 		const float a = angle + i * (glm::radians(1.0f)); // step x degrees
 		rays[i].Position = glm::vec2{player.Position.x, player.Position.z};
 		rays[i].Direction = {cos(a), sin(a)};
-		rays[i].update_end_position(map, grid.Size);
+		rays[i].cast(map);
 		rays[i]._draw(shader);
 	}
 
@@ -131,7 +130,7 @@ void draw_left(const double delta, const GLShaderProgram& shader)
 		const float a = angle + i * (glm::radians(1.0f)); // step x degrees
 		rays[i].Position = glm::vec2{player.Position.x, player.Position.z};
 		rays[i].Direction = {cos(a), sin(a)};
-		rays[i].update_end_position(map, grid.Size);
+		rays[i].cast(map);
 		rays[i]._draw(shader);
 	}
 
@@ -139,8 +138,8 @@ void draw_left(const double delta, const GLShaderProgram& shader)
 
 void draw_right(const double delta, const GLShaderProgram& shader)
 {
-	const int halfWidth = window.Width / 2;
-	const int fullHeight = window.Height;
+	const int halfWidth = window.get_width() / 2;
+	const int fullHeight = window.get_height();
 	const float aspect = static_cast<float>(halfWidth) / fullHeight;
 
 	Window::set_viewport(halfWidth, 0, halfWidth, fullHeight);
@@ -162,7 +161,7 @@ void draw_right(const double delta, const GLShaderProgram& shader)
 		{
 			const float distance = glm::length(glm::vec2(ray.EndPosition.x - player.Position.x,
 														 ray.EndPosition.y - player.Position.y));
-			draw_vertical_line(ray.EndPosition, distance, window.Height, shader);
+			draw_vertical_line(ray.EndPosition, distance, window.get_height(), shader);
 		}
 	}
 }
