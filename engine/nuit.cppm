@@ -12,3 +12,5 @@ export import :gl_shader;
 export import :shapes;
 export import :math;
 export import :ray_2d;
+export import :object;
+export import :file;

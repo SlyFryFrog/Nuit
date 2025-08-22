@@ -7,7 +7,7 @@ module;
 #include <string>
 export module nuit:gl_shader;
 
-import :utils;
+import :file;
 
 namespace Nuit
 {
@@ -64,7 +64,7 @@ namespace Nuit
 
 		void compile_and_attach(const std::string& file, const GLenum type) const
 		{
-			const auto rawData = read(file);
+			const auto rawData = File::read(file);
 
 			if (!rawData.has_value())
 			{

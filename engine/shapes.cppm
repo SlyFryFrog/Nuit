@@ -7,101 +7,50 @@ module;
 export module nuit:shapes;
 
 import :gl_shader;
+import :object;
 
 namespace Nuit
 {
-
-	export class Shape2D
+	export class Shape2D : Object
 	{
 	public:
-		glm::vec2 Position;
+		glm::vec2 Position{};
+
+		Shape2D() = default;
+
+		explicit Shape2D(glm::vec2 position) : Position(position)
+		{
+
+		}
 	};
 
-	export class Circle
+	export class Circle : public Shape2D
 	{
 	public:
 	};
 
-	export class Grid
+	export class Grid : public Shape2D
 	{
 		std::vector<glm::vec2> m_vertices;
 		GLuint m_vao{};
 		GLuint m_vbo{};
 
 	public:
-		glm::vec2 Position{};
 		glm::vec2 Size{};
 
 		Grid() = default;
-		Grid(const glm::vec2& position, const glm::vec2& size) : Position(position), Size(size)
+		Grid(const glm::vec2& position, const glm::vec2& size) :
+			Size(size), Shape2D(position)
 		{
 		}
 
-		~Grid()
-		{
-			if (m_vbo)
-			{
-				glDeleteBuffers(1, &m_vbo);
-			}
-			if (m_vao)
-			{
-				glDeleteVertexArrays(1, &m_vao);
-			}
-		}
+		~Grid() override;
 
-		void generate(const int rows, const int cols)
-		{
-			m_vertices.clear();
+		void _draw(const GLShaderProgram& shader) const;
 
-			// Get average X and Y of each space
-			const float dx = Size.x / static_cast<float>(cols);
-			const float dy = Size.y / static_cast<float>(rows);
+		void generate(int rows, int cols);
 
-			// Generate vertical lines
-			for (int c = 0; c <= cols; c++)
-			{
-				float x = Position.x + c * dx;
-				m_vertices.emplace_back(x, Position.y);
-				m_vertices.emplace_back(x, Position.y + Size.y);
-			}
-
-			// Generate horizontal lines
-			for (int r = 0; r <= rows; r++)
-			{
-				float y = Position.y + r * dy;
-				m_vertices.emplace_back(Position.x, y);
-				m_vertices.emplace_back(Position.x + Size.x, y);
-			}
-
-			glGenVertexArrays(1, &m_vao);
-			glBindVertexArray(m_vao);
-			glGenBuffers(1, &m_vbo);
-
-			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-			glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(glm::vec2), m_vertices.data(),
-						 GL_STATIC_DRAW);
-
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-			glEnableVertexAttribArray(0);
-
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindVertexArray(0);
-		}
-
-		[[nodiscard]] const std::vector<glm::vec2>& get_vertices() const
-		{
-			return m_vertices;
-		}
-
-		void _draw(const GLShaderProgram& shader) const
-		{
-			shader.bind();
-			// Color of gridlines
-			shader.set_uniform("uColor", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-			glBindVertexArray(m_vao);
-			glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_vertices.size()));
-		}
+		[[nodiscard]] const std::vector<glm::vec2>& get_vertices() const;
 
 		template <size_t R, size_t C>
 		void draw_filled(const GLShaderProgram& shader, const int (&map)[R][C]) const
@@ -123,10 +72,10 @@ namespace Nuit
 					case 0:
 						shader.set_uniform("uColor", glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
 					case 1:
-						{
-							const float x = Position.x + c * dx;
-							const float y = Position.y +
-								r * dy; // (rows - 1 - r) * dy; // Reverse direction
+					{
+						const float x = Position.x + c * dx;
+						const float y = Position.y +
+							r * dy; // (rows - 1 - r) * dy; // Reverse direction
 							// clang-format off
 							// Define vertices for a square
 							// Used to visualize position of player relative to grid of map
@@ -136,29 +85,29 @@ namespace Nuit
 								x + dx, y + dy,		// top right
 								x, y + dy			// top left
 							};
-							// clang-format on
+						// clang-format on
 
 
-							GLuint vao, vbo;
-							glGenVertexArrays(1, &vao);
-							glBindVertexArray(vao);
+						GLuint vao, vbo;
+						glGenVertexArrays(1, &vao);
+						glBindVertexArray(vao);
 
-							// Bind buffers and define buffer data for vbo
-							glGenBuffers(1, &vbo);
-							glBindBuffer(GL_ARRAY_BUFFER, vbo);
-							glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-										 GL_STATIC_DRAW);
+						// Bind buffers and define buffer data for vbo
+						glGenBuffers(1, &vbo);
+						glBindBuffer(GL_ARRAY_BUFFER, vbo);
+						glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+						             GL_STATIC_DRAW);
 
-							// Set the attrib pointer for the shader
-							glEnableVertexAttribArray(0);
-							glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float),
-												  nullptr);
+						// Set the attrib pointer for the shader
+						glEnableVertexAttribArray(0);
+						glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float),
+						                      nullptr);
 
-							glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+						glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-							glDeleteBuffers(1, &vbo);
-							glDeleteVertexArrays(1, &vao);
-						}
+						glDeleteBuffers(1, &vbo);
+						glDeleteVertexArrays(1, &vao);
+					}
 					default:
 						shader.set_uniform("uColor", glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
 						break;
@@ -171,7 +120,7 @@ namespace Nuit
 	};
 
 	export void draw_vertical_line(const glm::vec2 hitPoint, const float distance,
-								   const int screenHeight, const GLShaderProgram& shader)
+	                               const int screenHeight, const GLShaderProgram& shader)
 	{
 		GLuint vao, vbo;
 		glGenVertexArrays(1, &vao);
