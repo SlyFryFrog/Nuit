@@ -3,7 +3,6 @@ module;
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <iostream>
-#include <map>
 module player;
 
 import nuit;
@@ -56,7 +55,7 @@ void Player::_process(const double delta)
 	move_and_slide(movement);
 }
 
-void Player::_draw(const GLShaderProgram& shader) const
+void Player::_draw(const GLShaderProgram& shader)
 {
 	const glm::mat4 model = glm::translate(glm::mat4(1.0f),
 										   glm::vec3{Position.x, Position.z, 0.0f}) *

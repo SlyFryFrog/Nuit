@@ -1,9 +1,6 @@
 module;
 #include <GL/glew.h>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/glm.hpp>
-#include <iostream>
-#include <map>
+#include <glm/vec3.hpp>
 export module player;
 
 import nuit;
@@ -29,7 +26,7 @@ public:
 
 	void _init();
 	void _process(double delta);
-	void _draw(const GLShaderProgram& shader) const;
+	void _draw(const GLShaderProgram& shader);
 
 	void move_and_slide(glm::vec3 movement);
 };

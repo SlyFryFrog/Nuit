@@ -1,6 +1,8 @@
 module;
 export module nuit:object;
 
+import :gl_shader;
+
 namespace Nuit
 {
 	export class Object
@@ -16,7 +18,7 @@ namespace Nuit
 		{
 		}
 
-		virtual void _draw() const
+		virtual void _draw(const GLShaderProgram& shader)
 		{
 		}
 	};

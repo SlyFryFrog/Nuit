@@ -16,13 +16,14 @@ GLShaderProgram shader_3d;
 Timer timer;
 Grid grid;
 Player player;
+
 float angle;
 constexpr int FOV = 90;
 
+std::array<Ray2D, FOV> rays;
+
 void draw_left(double delta, const GLShaderProgram& shader);
 void draw_right(double delta, const GLShaderProgram& shader);
-
-std::array<Ray2D, FOV> rays;
 
 int main()
 {
@@ -83,8 +84,8 @@ void draw_left(const double delta, const GLShaderProgram& shader)
 	Window::set_viewport(0, 0, static_cast<int>(vpWidth), static_cast<int>(vpHeight));
 	const glm::mat4 proj = glm::ortho(-zoom * aspect, zoom * aspect, -zoom, zoom, -1.0f, 1.0f);
 
-	glm::mat4 view = glm::translate(glm::mat4(1.0f),
-									-glm::vec3{player.Position.x, player.Position.z, 0.0f});
+	const glm::mat4 view = glm::translate(glm::mat4(1.0f),
+										  -glm::vec3{player.Position.x, player.Position.z, 0.0f});
 	constexpr glm::mat4 model = glm::mat4(1.0f);
 
 	constexpr float rotationSpeed = 2.5f;
@@ -116,52 +117,55 @@ void draw_left(const double delta, const GLShaderProgram& shader)
 	grid.draw_filled(shader, map);
 	player._draw(shader);
 
-	for (int i = 0; i < rays.size() / 2; i++)
+	for (int i = 0; i < rays.size(); i++)
 	{
-		const float a = angle + i * (glm::radians(1.0f)); // step x degrees
+		const float a = angle + i * (glm::radians(-1.0f)); // step x degrees
 		rays[i].Position = glm::vec2{player.Position.x, player.Position.z};
 		rays[i].Direction = {cos(a), sin(a)};
 		rays[i].cast(map);
 		rays[i]._draw(shader);
 	}
-
-	for (int i = rays.size(); i >=rays.size() / 2; i--)
-	{
-		const float a = angle + i * (glm::radians(1.0f)); // step x degrees
-		rays[i].Position = glm::vec2{player.Position.x, player.Position.z};
-		rays[i].Direction = {cos(a), sin(a)};
-		rays[i].cast(map);
-		rays[i]._draw(shader);
-	}
-
 }
 
 void draw_right(const double delta, const GLShaderProgram& shader)
 {
 	const int halfWidth = window.get_width() / 2;
 	const int fullHeight = window.get_height();
-	const float aspect = static_cast<float>(halfWidth) / fullHeight;
 
 	Window::set_viewport(halfWidth, 0, halfWidth, fullHeight);
-	const glm::mat4 proj = glm::perspective(glm::radians((float)FOV), aspect, 0.1f, 100.0f);
 
-	glm::mat4 view = glm::lookAt(player.Position,
-								 player.Position + glm::vec3{cos(angle), 0, sin(angle)},
-								 glm::vec3{0, 1, 0});
+	const glm::mat4 proj = glm::ortho(0.0f, static_cast<float>(halfWidth) * 2,
+									  static_cast<float>(fullHeight), 0.0f, -1.0f, 1.0f);
 
 	shader.bind();
 	shader.set_uniform("uProjection", proj);
-	shader.set_uniform("uView", view);
+	shader.set_uniform("uView", glm::mat4(1.0f));
 	shader.set_uniform("uModel", glm::mat4(1.0f));
 
-	for (const auto& ray : rays)
+	for (int col = 0; col < rays.size(); col++)
 	{
-		// Only draw rays that hit a wall
-		if (ray.Hit)
+		const auto& ray = rays[col];
+
+		// Ignore rays that never hit a wall
+		if (!ray.Hit)
 		{
-			const float distance = glm::length(glm::vec2(ray.EndPosition.x - player.Position.x,
-														 ray.EndPosition.y - player.Position.y));
-			draw_vertical_line(ray.EndPosition, distance, window.get_height(), shader);
+			continue;
 		}
+
+		// Calculate distance from start to end of ray.
+		// Then define wall height based on the distance
+		const float distance = glm::length(ray.EndPosition - ray.Position);
+		const float normDistance = distance * cos(glm::radians(static_cast<float>(45 - col)));
+		const float wallHeight = static_cast<float>(fullHeight) / normDistance;
+
+		// Calculate wall top and bottom relative to OpenGL's coordinate system
+		const float yTop = (static_cast<float>(fullHeight) / 2) - (wallHeight / 2);
+		const float yBot = yTop + wallHeight;
+
+		// Map column to screen-space within right viewport
+		const float colX = (static_cast<float>(col) / static_cast<float>(rays.size())) *
+			static_cast<float>(halfWidth) * 2;
+
+		draw_vertical_line(static_cast<int>(colX), yTop, static_cast<int>(colX), yBot);
 	}
 }

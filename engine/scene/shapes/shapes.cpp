@@ -20,7 +20,7 @@ namespace Nuit
 		}
 	}
 
-	void Grid::_draw(const GLShaderProgram& shader) const
+	void Grid::_draw(const GLShaderProgram& shader)
 	{
 		shader.bind();
 		// Color of gridlines
@@ -41,7 +41,7 @@ namespace Nuit
 		// Generate vertical lines
 		for (int c = 0; c <= cols; c++)
 		{
-			float x = Position.x + c * dx;
+			float x = Position.x + dx * static_cast<float>(c);
 			m_vertices.emplace_back(x, Position.y);
 			m_vertices.emplace_back(x, Position.y + Size.y);
 		}
@@ -49,7 +49,7 @@ namespace Nuit
 		// Generate horizontal lines
 		for (int r = 0; r <= rows; r++)
 		{
-			float y = Position.y + r * dy;
+			float y = Position.y + dy * static_cast<float>(r);
 			m_vertices.emplace_back(Position.x, y);
 			m_vertices.emplace_back(Position.x + Size.x, y);
 		}
@@ -59,7 +59,7 @@ namespace Nuit
 		glGenBuffers(1, &m_vbo);
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(glm::vec2), m_vertices.data(),
+		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(m_vertices.size() * sizeof(glm::vec2)), m_vertices.data(),
 		             GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);

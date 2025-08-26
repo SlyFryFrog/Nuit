@@ -13,42 +13,25 @@ namespace Nuit
 		Timer() = default;
 		~Timer() = default;
 
-		void start()
-		{
-			m_start = std::chrono::high_resolution_clock::now();
-			m_prevTime = m_start;
-		}
+		/**
+		 * @brief Resets the timer to default state.
+		 */
+		void start();
 
-		[[nodiscard]] double delta()
-		{
-			const auto now = std::chrono::high_resolution_clock::now();
-			const double time =
-				std::chrono::duration_cast<std::chrono::duration<double>>(now - m_prevTime).count();
-			m_prevTime = now;
+		/**
+		 * @brief Gets the delta time between the last delta() call and now. Updates timeframe for
+		 * preparation of next delta.
+		 *
+		 * @return Time since last delta call.
+		 */
+		[[nodiscard]] double delta();
+		/**
+		 * @brief Returns the time since last delta, does not modify timeframe.
+		 * @return Time since start of timeframe.
+		 */
+		[[nodiscard]] double peak_delta() const;
 
-			return time;
-		}
-
-		[[nodiscard]] double peak_delta() const
-		{
-			const auto now = std::chrono::high_resolution_clock::now();
-			return std::chrono::duration_cast<std::chrono::duration<double>>(now - m_prevTime)
-				.count();
-		}
-
-		[[nodiscard]] double elapsed()
-		{
-			const auto now = std::chrono::high_resolution_clock::now();
-			const double time =
-				std::chrono::duration_cast<std::chrono::duration<double>>(now - m_start).count();
-			m_start = now;
-			return time;
-		}
-
-		[[nodiscard]] double peak_elapsed() const
-		{
-			const auto now = std::chrono::high_resolution_clock::now();
-			return std::chrono::duration_cast<std::chrono::duration<double>>(now - m_start).count();
-		}
+		[[nodiscard]] double elapsed();
+		[[nodiscard]] double peak_elapsed() const;
 	};
-}
+} // namespace Nuit

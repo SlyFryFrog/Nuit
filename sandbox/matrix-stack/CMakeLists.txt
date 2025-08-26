@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(Nuit LANGUAGES CXX)
+project(MatrixStack LANGUAGES CXX)
 
 #####################
 # Compiler settings #
@@ -14,12 +14,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #################################
 
 file(GLOB_RECURSE SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/engine/*.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/engine/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
 
 file(GLOB_RECURSE MODULES
-        ${CMAKE_CURRENT_SOURCE_DIR}/engine/*.cppm
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cppm
 )
 
 ######################
@@ -35,7 +35,7 @@ find_package(OpenGL REQUIRED)
 # Create executable #
 #####################
 
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_sources(${PROJECT_NAME}
         PUBLIC
@@ -51,11 +51,29 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
+        Nuit
         glm::glm
         glfw
         OpenGL::GL
         GLEW::GLEW
 )
+
+# If in debug mode, create symlinks of all resource files to enable hot-reloading capabilities.
+# For release/distribution builds, it should create shallow copies (new copies).
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    foreach(dir shaders)
+        add_custom_command(
+                TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${dir}
+                COMMAND ${CMAKE_COMMAND} -E create_symlink
+                ${CMAKE_CURRENT_SOURCE_DIR}/${dir}
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>/${dir}
+                COMMENT "Symlinking ./${dir} -> build/Debug/${dir}"
+        )
+    endforeach()
+else()
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endif()
 
 ###############################
 # Compile commands for clangd #
@@ -67,10 +85,4 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
             ${CMAKE_BINARY_DIR}/compile_commands.json
             ${CMAKE_SOURCE_DIR}/compile_commands.json
     )
-endif()
-
-if (BUILD_SANDBOX)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sandbox/raycaster)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sandbox/shapes)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sandbox/matrix-stack)
 endif()
