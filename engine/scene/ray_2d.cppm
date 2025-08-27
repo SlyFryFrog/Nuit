@@ -18,10 +18,11 @@ namespace Nuit
 		template <size_t R, size_t C>
 		void cast(int (&map)[R][C])
 		{
+			constexpr float maxDistance = 100.0f;
+
 			const glm::vec2 stepSize = {
-				sqrt(1 + pow((Direction.y / Direction.x), 2)),
-				sqrt(1 + pow((Direction.x / Direction.y), 2))
-			};
+				std::sqrt(1.0f + (Direction.y * Direction.y) / (Direction.x * Direction.x)),
+				std::sqrt(1.0f + (Direction.x * Direction.x) / (Direction.y * Direction.y))};
 
 			// Convert Position (float/double) to an int
 			// Need to floor to now round low negative decimals up (ie -0.003 not 0, now -1)
@@ -52,7 +53,6 @@ namespace Nuit
 			}
 
 			bool tileFound = false;
-			constexpr float maxDistance = 100.0f;
 			float distance = 0.0f;
 			while (!tileFound && distance < maxDistance)
 			{

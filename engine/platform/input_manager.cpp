@@ -43,7 +43,7 @@ namespace Nuit
 	}
 
 	void InputManager::_process_mouse_callback(GLFWwindow* window, const double xposIn,
-										const double yposIn)
+											   const double yposIn)
 	{
 		if (m_firstMouse)
 		{
@@ -130,7 +130,8 @@ namespace Nuit
 	}
 
 	bool InputManager::is_ordered_pressed(const std::vector<Key>& keys)
-	{		std::queue<std::shared_ptr<InputEvent>> tempRecentQueue = m_recentQueue;
+	{
+		std::queue<std::shared_ptr<InputEvent>> tempRecentQueue = m_recentQueue;
 		auto it = keys.begin();
 
 		while (it != keys.end() && !tempRecentQueue.empty())
@@ -210,4 +211,4 @@ namespace Nuit
 		// Update queue
 		m_recentQueue = tempQueue;
 	}
-} // namespace Lys
+} // namespace Nuit

@@ -16,3 +16,4 @@ export import :object;
 export import :file;
 export import :sphere;
 export import :circle;
+export import :grid;

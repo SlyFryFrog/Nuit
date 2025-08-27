@@ -2,12 +2,8 @@ module;
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <iostream>
-#include <ostream>
 #include <string>
 export module nuit:gl_shader;
-
-import :file;
 
 namespace Nuit
 {
@@ -25,83 +21,23 @@ namespace Nuit
 
 	public:
 		explicit GLShaderProgram() = default;
+		~GLShaderProgram();
 
-		~GLShaderProgram()
-		{
-			if (m_program)
-			{
-				glDeleteProgram(m_program);
-			}
-		}
+		[[nodiscard]] GLuint id() const;
 
-		[[nodiscard]] GLuint id() const
-		{
-			return m_program;
-		}
+		void create();
 
-		void create()
-		{
-			if (!m_program)
-			{
-				m_program = glCreateProgram();
-			}
-		}
+		void bind() const;
 
-		void bind() const
-		{
-			glUseProgram(m_program);
-		}
+		static void unbind();
 
-		static void unbind()
-		{
-			glUseProgram(0);
-		}
+		void attach_shader(GLuint shader) const;
 
-		void attach_shader(const GLuint shader) const
-		{
-			glAttachShader(m_program, shader);
-		}
+		void compile_and_attach(const std::string& file, GLenum type) const;
 
-		void compile_and_attach(const std::string& file, const GLenum type) const
-		{
-			const auto rawData = File::read(file);
+		void link() const;
 
-			if (!rawData.has_value())
-			{
-				std::println(std::cerr, "Failed to read shader file!");
-				return;
-			}
-
-			const char* data = rawData.value().c_str();
-
-			const GLuint shader = glCreateShader(type);
-			glShaderSource(shader, 1, &data, nullptr);
-			glCompileShader(shader);
-
-			GLint success;
-			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-			if (!success)
-			{
-				char log[512];
-				glGetShaderInfoLog(shader, 512, nullptr, log);
-				std::println(std::cerr, "{0}", log);
-				return;
-			}
-
-			glAttachShader(m_program, shader);
-			glDeleteShader(shader);
-		}
-
-		void link() const
-		{
-			glLinkProgram(m_program);
-		}
-
-
-		[[nodiscard]] GLint get_uniform_location(const std::string& name) const
-		{
-			return glGetUniformLocation(m_program, name.c_str());
-		}
+		[[nodiscard]] GLint get_uniform_location(const std::string& name) const;
 
 		void set_uniform(const std::string& name, const int value) const
 		{

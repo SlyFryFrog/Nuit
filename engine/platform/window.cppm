@@ -69,9 +69,9 @@ namespace Nuit
 
 		void _process() const
 		{
+			InputManager::_process();
 			glfwSwapBuffers(m_window);
 			glfwPollEvents();
-			InputManager::_process();
 		}
 
 		static void clear()

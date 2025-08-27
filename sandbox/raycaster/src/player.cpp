@@ -11,6 +11,7 @@ import map;
 using namespace Nuit;
 
 Player::Player() = default;
+
 Player::~Player()
 {
 	glDeleteVertexArrays(1, &m_vao);
@@ -76,7 +77,7 @@ void Player::move_and_slide(const glm::vec3 movement)
 	int mapY = static_cast<int>(std::floor(temp.z));
 	int mapX = static_cast<int>(std::floor(temp.x));
 
-	if (mapX < 0 || mapY < 0 || mapX >= 10 || mapY >= 10)
+	if (mapX < 0 || mapY < 0 || mapX >= 20 || mapY >= 20)
 	{
 		Position = temp;
 	}
@@ -84,7 +85,7 @@ void Player::move_and_slide(const glm::vec3 movement)
 	{
 		Position = temp;
 	}
-	else if (Position.x >= 0 && Position.x < 10 || Position.z >= 0 && Position.z < 10)
+	else if (Position.x >= 0 && Position.x < 20 || Position.z >= 0 && Position.z < 20)
 	{
 		// Allow movement if already in wall to get out of it
 		if (map[static_cast<int>(Position.z)][static_cast<int>(Position.x)] == 1)

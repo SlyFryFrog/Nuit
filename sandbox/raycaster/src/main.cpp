@@ -17,10 +17,11 @@ Timer timer;
 Grid grid;
 Player player;
 
-float angle;
 constexpr int FOV = 90;
+float angle;
+float rate;
 
-std::array<Ray2D, FOV> rays;
+std::vector<Ray> rays;
 
 void draw_left(double delta, const GLShaderProgram& shader);
 void draw_right(double delta, const GLShaderProgram& shader);
@@ -45,10 +46,10 @@ int main()
 	timer.start();
 
 	// Grid from -1,-1 to 1,1 (full normalized ortho space)
-	grid = Grid(glm::vec2{0, 0}, glm::vec2{10.0f, 10.0f});
-	grid.generate(10, 10);
+	grid = Grid(glm::vec2{0, 0}, glm::vec2{20.0f, 20.0f});
+	grid.generate(20, 20);
 	player._init();
-	player.Position = glm::vec3{0, 0, 0};
+	player.Position = glm::vec3{10, 0, 10};
 
 	while (!window.is_done())
 	{
@@ -58,10 +59,26 @@ int main()
 		{
 			break;
 		}
+		if (InputManager::is_just_pressed(KEY_R))
+		{
+			std::println("Reloading shaders...");
+			shader_2d.create();
+			shader_2d.compile_and_attach("shaders/2d/vertex.vert", VERTEX);
+			shader_2d.compile_and_attach("shaders/2d/fragment.frag", FRAGMENT);
+			shader_2d.link();
+
+			shader_3d.create();
+			shader_3d.compile_and_attach("shaders/3d/vertex.vert", VERTEX);
+			shader_3d.compile_and_attach("shaders/3d/fragment.frag", FRAGMENT);
+			shader_3d.link();
+			std::println("Finished reloading shaders");
+		}
 
 		const double delta = timer.delta();
-
 		player._process(delta);
+
+		rate = FOV / (static_cast<float>(window.get_width()));
+		rays.resize(window.get_width());
 
 		draw_left(delta, shader_2d);
 		draw_right(delta, shader_3d);
@@ -119,7 +136,7 @@ void draw_left(const double delta, const GLShaderProgram& shader)
 
 	for (int i = 0; i < rays.size(); i++)
 	{
-		const float a = angle + i * (glm::radians(-1.0f)); // step x degrees
+		const float a = angle + glm::radians(i * -rate); // step x degrees
 		rays[i].Position = glm::vec2{player.Position.x, player.Position.z};
 		rays[i].Direction = {cos(a), sin(a)};
 		rays[i].cast(map);
@@ -142,9 +159,11 @@ void draw_right(const double delta, const GLShaderProgram& shader)
 	shader.set_uniform("uView", glm::mat4(1.0f));
 	shader.set_uniform("uModel", glm::mat4(1.0f));
 
+	const float projectPlaneDistance = window.get_width() / (2 * tan(FOV / 2));
+
 	for (int col = 0; col < rays.size(); col++)
 	{
-		const auto& ray = rays[col];
+		auto& ray = rays[col];
 
 		// Ignore rays that never hit a wall
 		if (!ray.Hit)
@@ -155,8 +174,11 @@ void draw_right(const double delta, const GLShaderProgram& shader)
 		// Calculate distance from start to end of ray.
 		// Then define wall height based on the distance
 		const float distance = glm::length(ray.EndPosition - ray.Position);
-		const float normDistance = distance * cos(glm::radians(static_cast<float>(45 - col)));
-		const float wallHeight = static_cast<float>(fullHeight) / normDistance;
+
+		const float normDistance = distance *
+			cos(glm::radians(FOV / 2 - col * rate)); // Remove fisheye effect
+
+		const float wallHeight = (WallTileSize * projectPlaneDistance) / normDistance;
 
 		// Calculate wall top and bottom relative to OpenGL's coordinate system
 		const float yTop = (static_cast<float>(fullHeight) / 2) - (wallHeight / 2);
@@ -166,6 +188,6 @@ void draw_right(const double delta, const GLShaderProgram& shader)
 		const float colX = (static_cast<float>(col) / static_cast<float>(rays.size())) *
 			static_cast<float>(halfWidth) * 2;
 
-		draw_vertical_line(static_cast<int>(colX), yTop, static_cast<int>(colX), yBot);
+		ray.draw_vertical_line(static_cast<int>(colX), yTop, static_cast<int>(colX), yBot);
 	}
 }

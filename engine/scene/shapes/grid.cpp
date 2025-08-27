@@ -60,7 +60,7 @@ namespace Nuit
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 		glBufferData(GL_ARRAY_BUFFER, static_cast<long>(m_vertices.size() * sizeof(glm::vec2)), m_vertices.data(),
-		             GL_STATIC_DRAW);
+					 GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
