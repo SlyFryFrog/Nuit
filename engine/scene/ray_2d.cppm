@@ -13,6 +13,7 @@ namespace Nuit
 		glm::vec2 Position;
 		glm::vec2 Direction;
 		glm::vec2 EndPosition;
+		glm::ivec2 MapPosition;
 		bool Hit{false};
 
 		template <size_t R, size_t C>
@@ -75,6 +76,9 @@ namespace Nuit
 					switch (map[mapCheck.y][mapCheck.x])
 					{
 					case 1:
+					case 2:
+					case 3:
+						MapPosition = mapCheck;
 						tileFound = true;
 						break;
 					default:

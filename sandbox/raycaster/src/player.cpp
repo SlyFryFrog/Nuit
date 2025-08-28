@@ -30,7 +30,7 @@ void Player::_init()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 }
 
 void Player::_process(const double delta)
@@ -77,20 +77,24 @@ void Player::move_and_slide(const glm::vec3 movement)
 	int mapY = static_cast<int>(std::floor(temp.z));
 	int mapX = static_cast<int>(std::floor(temp.x));
 
-	if (mapX < 0 || mapY < 0 || mapX >= 20 || mapY >= 20)
+	if (!(map[(int)Position.z][int(Position.x + movement.x)] ||
+		  map[(int)(Position.z + movement.z)][(int)Position.x]))
 	{
-		Position = temp;
-	}
-	else if (map[mapY][mapX] != 1)
-	{
-		Position = temp;
-	}
-	else if (Position.x >= 0 && Position.x < 20 || Position.z >= 0 && Position.z < 20)
-	{
-		// Allow movement if already in wall to get out of it
-		if (map[static_cast<int>(Position.z)][static_cast<int>(Position.x)] == 1)
+		if (mapX < 0 || mapY < 0 || mapX >= 20 || mapY >= 20)
 		{
 			Position = temp;
+		}
+		else if (map[mapY][mapX] != 1)
+		{
+			Position = temp;
+		}
+		else if (map[mapY][static_cast<int>(Position.x)] != 1)
+		{
+			Position.z = temp.z;
+		}
+		else if (map[static_cast<int>(Position.z)][mapX] != 1)
+		{
+			Position.x = temp.x;
 		}
 	}
 }

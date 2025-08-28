@@ -3,12 +3,12 @@ module;
 #include <glm/vec3.hpp>
 export module player;
 
-import nuit;
 import map;
+import nuit;
 
 using namespace Nuit;
 
-export class Player
+export class Player : Object
 {
 	GLuint m_vao{};
 	GLuint m_vbo{};
@@ -22,11 +22,11 @@ public:
 
 public:
 	Player();
-	~Player();
+	~Player() override;
 
-	void _init();
-	void _process(double delta);
-	void _draw(const GLShaderProgram& shader);
+	void _init() override;
+	void _process(double delta) override;
+	void _draw(const GLShaderProgram& shader) override;
 
 	void move_and_slide(glm::vec3 movement);
 };

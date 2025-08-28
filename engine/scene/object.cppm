@@ -14,7 +14,7 @@ namespace Nuit
 		{
 		}
 
-		virtual void _process()
+		virtual void _process(double delta)
 		{
 		}
 

@@ -77,8 +77,8 @@ int main()
 		const double delta = timer.delta();
 		player._process(delta);
 
-		rate = FOV / (static_cast<float>(window.get_width()));
-		rays.resize(window.get_width());
+		rate = FOV / (static_cast<float>(window.get_width() / 2));		// Size of viewport
+		rays.resize(window.get_width() / 2);
 
 		draw_left(delta, shader_2d);
 		draw_right(delta, shader_3d);
@@ -159,7 +159,7 @@ void draw_right(const double delta, const GLShaderProgram& shader)
 	shader.set_uniform("uView", glm::mat4(1.0f));
 	shader.set_uniform("uModel", glm::mat4(1.0f));
 
-	const float projectPlaneDistance = window.get_width() / (2 * tan(FOV / 2));
+	const auto projectPlaneDistance = static_cast<float>(window.get_width() / (2 * tan(FOV / 2)));
 
 	for (int col = 0; col < rays.size(); col++)
 	{
@@ -180,13 +180,26 @@ void draw_right(const double delta, const GLShaderProgram& shader)
 
 		const float wallHeight = (WallTileSize * projectPlaneDistance) / normDistance;
 
-		// Calculate wall top and bottom relative to OpenGL's coordinate system
+		// Calculate wall top and bottom relative to OpenGL's coordinate systems
 		const float yTop = (static_cast<float>(fullHeight) / 2) - (wallHeight / 2);
 		const float yBot = yTop + wallHeight;
 
 		// Map column to screen-space within right viewport
 		const float colX = (static_cast<float>(col) / static_cast<float>(rays.size())) *
 			static_cast<float>(halfWidth) * 2;
+
+		if (map[ray.MapPosition.y][ray.MapPosition.x] == 2)
+		{
+			shader.set_uniform("uColor", glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
+		}
+		else if (map[ray.MapPosition.y][ray.MapPosition.x] == 3)
+		{
+			shader.set_uniform("uColor", glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
+		}
+		else
+		{
+			shader.set_uniform("uColor", glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
+		}
 
 		ray.draw_vertical_line(static_cast<int>(colX), yTop, static_cast<int>(colX), yBot);
 	}

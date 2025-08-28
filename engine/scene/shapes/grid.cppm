@@ -1,8 +1,8 @@
 module;
 #include <GL/glew.h>
-#include <vector>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
+#include <vector>
 export module nuit:grid;
 
 import :shapes;
@@ -19,8 +19,7 @@ namespace Nuit
 		glm::vec2 Size{};
 
 		Grid() = default;
-		Grid(const glm::vec2& position, const glm::vec2& size) :
-			Shape2D(position), Size(size)
+		Grid(const glm::vec2& position, const glm::vec2& size) : Shape2D(position), Size(size)
 		{
 		}
 
@@ -51,51 +50,56 @@ namespace Nuit
 					{
 					case 0:
 						shader.set_uniform("uColor", glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
-					case 1:
-					{
-						const float x = Position.x + dx * static_cast<float>(c);
-						const float y = Position.y +
-							dy * static_cast<float>(r); // (rows - 1 - r) * dy; // Reverse direction
-							// clang-format off
-							// Define vertices for a square
-							// Used to visualize position of player relative to grid of map
-							const float vertices[] = {
-								x, y,				// bottom left
-								x + dx, y,			// bottom right
-								x + dx, y + dy,		// top right
-								x, y + dy			// top left
-							};
-						// clang-format on
-
-
-						GLuint vao, vbo;
-						glGenVertexArrays(1, &vao);
-						glBindVertexArray(vao);
-
-						// Bind buffers and define buffer data for vbo
-						glGenBuffers(1, &vbo);
-						glBindBuffer(GL_ARRAY_BUFFER, vbo);
-						glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-						             GL_STATIC_DRAW);
-
-						// Set the attrib pointer for the shader
-						glEnableVertexAttribArray(0);
-						glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float),
-						                      nullptr);
-
-						glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-						glDeleteBuffers(1, &vbo);
-						glDeleteVertexArrays(1, &vao);
-					}
-					default:
-						shader.set_uniform("uColor", glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
 						break;
+					case 1:
+						shader.set_uniform("uColor", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+						break;
+					case 2:
+						shader.set_uniform("uColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+						break;
+					case 3:
+						shader.set_uniform("uColor", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+						break;
+					default:
+						shader.set_uniform("uColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 					}
+					const float x = Position.x + dx * static_cast<float>(c);
+					const float y = Position.y +
+						dy * static_cast<float>(r); // (rows - 1 - r) * dy; // Reverse
+					// direction
+					// clang-format off
+					// Define vertices for a square
+					// Used to visualize position of player relative to grid of map
+					const float vertices[] = {
+						x, y,				// bottom left
+						x + dx, y,			// bottom right
+						x + dx, y + dy,		// top right
+						x, y + dy			// top left
+					};
+					// clang-format on
+
+
+					GLuint vao, vbo;
+					glGenVertexArrays(1, &vao);
+					glBindVertexArray(vao);
+
+					// Bind buffers and define buffer data for vbo
+					glGenBuffers(1, &vbo);
+					glBindBuffer(GL_ARRAY_BUFFER, vbo);
+					glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+					// Set the attrib pointer for the shader
+					glEnableVertexAttribArray(0);
+					glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+
+					glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+					glDeleteBuffers(1, &vbo);
+					glDeleteVertexArrays(1, &vao);
 				}
 			}
 
 			_draw(shader);
 		}
 	};
-}
+} // namespace Nuit
