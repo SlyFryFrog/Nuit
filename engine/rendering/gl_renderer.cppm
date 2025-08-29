@@ -5,6 +5,13 @@ export module nuit:gl_renderer;
 
 namespace Nuit
 {
+	export enum PolygonMode
+	{
+		FILL,
+		LINE,
+		POINT
+	};
+
 	export class GLRenderer
 	{
 	public:
@@ -29,5 +36,22 @@ namespace Nuit
 			glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &numAttributes);
 			std::println("Maximum number of vertex attributes supported: {0}", numAttributes);
 		}
+
+		static void set_polygon_mode(const PolygonMode mode)
+		{
+			if (mode == PolygonMode::FILL)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+			else if (mode == PolygonMode::POINT)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+			}
+			else if (mode == PolygonMode::LINE)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+		}
+
 	};
 }

@@ -1,4 +1,8 @@
 module;
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/glm.hpp>
+#include <memory>
+#include <vector>
 module map;
 
 Map::Map()
@@ -9,8 +13,30 @@ Map::Map(int width, int height)
 {
 }
 
-void Map::_draw()
+Map::Map(int width, int height, const std::shared_ptr<Window>& window,
+		 const std::shared_ptr<std::vector<Ray>>& rays) : m_rays(rays), m_window(window)
 {
+}
+
+void Map::_draw(const GLShaderProgram& shader)
+{
+	m_halfWidth = m_window->get_width() / 2;
+	m_fullHeight = m_window->get_height();
+
+	// uint32_t textureBuffer[halfWidth * fullHeight];
+
+	Window::set_viewport(m_halfWidth, 0, m_halfWidth, m_fullHeight);
+
+	const glm::mat4 proj = glm::ortho(0.0f, static_cast<float>(m_halfWidth) * 2,
+									  static_cast<float>(m_fullHeight), 0.0f, -1.0f, 1.0f);
+
+	shader.bind();
+	shader.set_uniform("uProjection", proj);
+	shader.set_uniform("uView", glm::mat4(1.0f));
+	shader.set_uniform("uModel", glm::mat4(1.0f));
+
+	draw_walls(shader);
+	shader.unbind();	// Optionally call unbind
 }
 
 void Map::generate()
@@ -18,14 +44,59 @@ void Map::generate()
 
 }
 
-void Map::draw_walls()
+void Map::draw_walls(const GLShaderProgram& shader)
+{
+	const auto projectPlaneDistance = static_cast<float>(m_window->get_width() / (2 * tan(FOV / 2)));
+
+	for (int col = 0; col < m_rays->size(); col++)
+	{
+		auto& ray = m_rays->at(col);
+
+		// Ignore rays that never hit a wall
+		if (!ray.Hit)
+		{
+			continue;
+		}
+
+		// Calculate distance from start to end of ray.
+		// Then define wall height based on the distance
+		const float distance = glm::length(ray.EndPosition - ray.Position);
+
+		const float normDistance = distance *
+			cos(glm::radians(FOV / 2 - col * rate)); // Remove fisheye effect
+
+		const float wallHeight = (WallTileSize * projectPlaneDistance) / normDistance;
+
+		// Calculate wall top and bottom relative to OpenGL's coordinate systems
+		const float yTop = (static_cast<float>(m_fullHeight) / 2) - (wallHeight / 2);
+		const float yBot = yTop + wallHeight;
+
+		// Map column to screen-space within right viewport
+		const float colX = (static_cast<float>(col) / static_cast<float>(m_rays->size())) *
+			static_cast<float>(m_halfWidth) * 2;
+
+		// Set uniforms based on tile number
+		if (generatedMap[ray.MapPosition.y][ray.MapPosition.x] == 2)
+		{
+			shader.set_uniform("uColor", glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
+		}
+		else if (generatedMap[ray.MapPosition.y][ray.MapPosition.x] == 3)
+		{
+			shader.set_uniform("uColor", glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
+		}
+		else
+		{
+			shader.set_uniform("uColor", glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
+		}
+
+		ray.draw_vertical_line(static_cast<int>(colX), yTop, static_cast<int>(colX), yBot);
+	}
+}
+
+void Map::draw_floors(const GLShaderProgram& shader)
 {
 }
 
-void Map::draw_floors()
-{
-}
-
-void Map::draw_ceilings()
+void Map::draw_ceilings(const GLShaderProgram& shader)
 {
 }

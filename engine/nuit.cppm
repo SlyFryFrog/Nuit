@@ -17,3 +17,4 @@ export import :file;
 export import :sphere;
 export import :circle;
 export import :grid;
+export import :gl_texture;

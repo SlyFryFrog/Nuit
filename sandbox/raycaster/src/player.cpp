@@ -39,19 +39,19 @@ void Player::_process(const double delta)
 
 	if (InputManager::is_pressed(KEY_A))
 	{
-		movement.x -= Speed * delta;
+		movement.x -= Speed * static_cast<float>(delta);
 	}
 	if (InputManager::is_pressed(KEY_D))
 	{
-		movement.x += Speed * delta;
+		movement.x += Speed * static_cast<float>(delta);
 	}
 	if (InputManager::is_pressed(KEY_S))
 	{
-		movement.z -= Speed * delta;
+		movement.z -= Speed * static_cast<float>(delta);
 	}
 	if (InputManager::is_pressed(KEY_W))
 	{
-		movement.z += Speed * delta;
+		movement.z += Speed * static_cast<float>(delta);
 	}
 	move_and_slide(movement);
 }
@@ -77,22 +77,18 @@ void Player::move_and_slide(const glm::vec3 movement)
 	int mapY = static_cast<int>(std::floor(temp.z));
 	int mapX = static_cast<int>(std::floor(temp.x));
 
-	if (!(map[(int)Position.z][int(Position.x + movement.x)] ||
-		  map[(int)(Position.z + movement.z)][(int)Position.x]))
+	if (!(generatedMap[static_cast<int>(Position.z)][static_cast<int>(Position.x + movement.x)] ||
+		  generatedMap[static_cast<int>(Position.z + movement.z)][static_cast<int>(Position.x)]))
 	{
-		if (mapX < 0 || mapY < 0 || mapX >= 20 || mapY >= 20)
+		if (mapX < 0 || mapY < 0 || mapX >= 20 || mapY >= 20 || generatedMap[mapY][mapX] != 1)
 		{
 			Position = temp;
 		}
-		else if (map[mapY][mapX] != 1)
-		{
-			Position = temp;
-		}
-		else if (map[mapY][static_cast<int>(Position.x)] != 1)
+		else if (generatedMap[mapY][static_cast<int>(Position.x)] != 1)
 		{
 			Position.z = temp.z;
 		}
-		else if (map[static_cast<int>(Position.z)][mapX] != 1)
+		else if (generatedMap[static_cast<int>(Position.z)][mapX] != 1)
 		{
 			Position.x = temp.x;
 		}

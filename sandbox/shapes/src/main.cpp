@@ -18,7 +18,6 @@ int main()
 
 	Circle circle;
 	circle.Radius = 0.5f;
-
 	circle.Color = {1.0f, 1.0f, 0.0f, 1.0f};
 
 	while (!window.is_done())
