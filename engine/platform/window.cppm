@@ -13,7 +13,7 @@ namespace Nuit
 	export class Window
 	{
 		GLFWwindow* m_window{};
-		std::string m_title{};
+		std::string m_title{"Untitled Window"};
 		int m_width{600}, m_height{600};
 
 	public:
@@ -29,7 +29,7 @@ namespace Nuit
 
 		~Window() = default;
 
-		void _init()
+		void init()
 		{
 			if (!glfwInit())
 			{
@@ -67,7 +67,7 @@ namespace Nuit
 			glfwMakeContextCurrent(m_window);
 		}
 
-		void _process() const
+		void process() const
 		{
 			InputManager::_process();
 			glfwSwapBuffers(m_window);

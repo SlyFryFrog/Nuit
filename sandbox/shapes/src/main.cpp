@@ -5,7 +5,7 @@ using namespace Nuit;
 int main()
 {
 	Window window("Shapes", 600, 600);
-	window._init();
+	window.init();
 
 	GLRenderer::_init();	// Before calling GL-related code, we need to initiate the renderer
 
@@ -24,7 +24,7 @@ int main()
 	{
 		circle._draw(shader);
 
-		window._process();
+		window.process();
 		Window::clear();
 	}
 

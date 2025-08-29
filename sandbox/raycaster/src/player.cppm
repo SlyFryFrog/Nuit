@@ -8,7 +8,7 @@ import nuit;
 
 using namespace Nuit;
 
-export class Player : Object
+export class Player final : Object
 {
 	GLuint m_vao{};
 	GLuint m_vbo{};

@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <print>
+#include <thread>
 
 import nuit;
 import player;
@@ -10,7 +11,9 @@ import map;
 
 using namespace Nuit;
 
-std::shared_ptr<Window> window = std::make_shared<Window>("Raycaster", 600, 600);
+auto window = std::make_shared<Window>("Raycaster", 600, 600);
+auto rays = std::make_shared<std::vector<Ray>>();
+
 GLShaderProgram shader_2d;
 GLShaderProgram shader_3d;
 Timer timer;
@@ -20,7 +23,6 @@ Map map;
 
 float angle;
 
-std::shared_ptr<std::vector<Ray>> rays = std::make_shared<std::vector<Ray>>();
 
 void draw_left(const GLShaderProgram& shader);
 void draw_right(const GLShaderProgram& shader);
@@ -28,7 +30,7 @@ void draw_right(const GLShaderProgram& shader);
 int main()
 {
 	std::filesystem::current_path(WorkingDirectory);
-	window->_init();
+	window->init();
 	GLRenderer::_init();
 
 	map = Map(20, 20, window, rays);
@@ -78,11 +80,11 @@ int main()
 
 		if (InputManager::is_pressed(KEY_E))
 		{
-			angle -= rotationSpeed * delta;
+			angle -= rotationSpeed * static_cast<float>(delta);
 		}
 		if (InputManager::is_pressed(KEY_Q))
 		{
-			angle += rotationSpeed * delta;
+			angle += rotationSpeed * static_cast<float>(delta);
 		}
 
 		// Wrap angle between 0 and 2*PI
@@ -98,14 +100,14 @@ int main()
 
 		player._process(delta);
 
-		rate = FOV / (static_cast<float>(window->get_width() / 2));		// Size of viewport
+		rate = FOV / (static_cast<float>(window->get_width() / 2)); // Size of viewport
 		rays->clear();
 		rays->resize(window->get_width() / 2);
 
 		draw_left(shader_2d);
 		draw_right(shader_3d);
 
-		window->_process();
+		window->process();
 	}
 
 	return 0;
@@ -125,22 +127,51 @@ void draw_left(const GLShaderProgram& shader)
 
 	const glm::mat4 view = glm::translate(glm::mat4(1.0f),
 										  -glm::vec3{player.Position.x, player.Position.z, 0.0f});
-	constexpr glm::mat4 model = glm::mat4(1.0f);
 
 	shader.bind();
 	shader.set_uniform("uProjection", proj);
 	shader.set_uniform("uView", view);
-	shader.set_uniform("uModel", model);
+	shader.set_uniform("uModel", glm::mat4(1.0f));
 	shader.set_uniform("uColor", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+
 	grid.draw_filled(shader, generatedMap);
 	player._draw(shader);
 
+
+	// Split path for casting rays onto different threads
+	std::vector<std::thread> threads;
+	const unsigned int numThreads = std::thread::hardware_concurrency();
+	threads.reserve(numThreads);
+
+	const int raysPerThread = rays->size() / numThreads;
+
+	for (int i = 0; i < numThreads; ++i)
+	{
+		threads.emplace_back(
+			[&, i]()
+			{
+				const int start = i * raysPerThread;
+				const int end = (i == numThreads - 1) ? rays->size() : start + raysPerThread;
+
+				for (int j = start; j < end; ++j)
+				{
+					const float a = angle + glm::radians(j * -rate); // step x degrees
+					rays->at(j).Position = glm::vec2{player.Position.x, player.Position.z};
+					rays->at(j).Direction = {cos(a), sin(a)};
+					rays->at(j).cast(generatedMap);
+				}
+			});
+	}
+
+	// Wait for all threads to finish before proceeding
+	for (auto& thread : threads)
+	{
+		thread.join();
+	}
+
+	// Draw each ray, can't call to OpenGL on multiple threads
 	for (int i = 0; i < rays->size(); i++)
 	{
-		const float a = angle + glm::radians(i * -rate); // step x degrees
-		rays->at(i).Position = glm::vec2{player.Position.x, player.Position.z};
-		rays->at(i).Direction = {cos(a), sin(a)};
-		rays->at(i).cast(generatedMap);
 		rays->at(i)._draw(shader);
 	}
 }
