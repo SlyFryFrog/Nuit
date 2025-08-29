@@ -19,6 +19,7 @@ namespace Nuit
 		glm::vec2 Size{};
 
 		Grid() = default;
+
 		Grid(const glm::vec2& position, const glm::vec2& size) : Shape2D(position), Size(size)
 		{
 		}

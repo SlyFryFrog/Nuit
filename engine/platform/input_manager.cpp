@@ -52,8 +52,14 @@ namespace Nuit
 			m_firstMouse = false;
 		}
 
-		m_prevMouseX = xposIn - m_prevMouseX;
-		m_prevMouseY = m_prevMouseY - yposIn;
+		double deltaX = xposIn - m_prevMouseX;
+		double deltaY = m_prevMouseY - yposIn;
+
+		m_prevMouseX = xposIn;
+		m_prevMouseY = yposIn;
+
+		m_deltaX = deltaX;
+		m_deltaY = deltaY;
 	}
 
 	/**

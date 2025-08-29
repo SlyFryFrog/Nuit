@@ -20,8 +20,8 @@ Map::Map(int width, int height, const std::shared_ptr<Window>& window,
 
 void Map::_draw(const GLShaderProgram& shader)
 {
-	m_halfWidth = m_window->get_width() / 2;
-	m_fullHeight = m_window->get_height();
+	m_halfWidth = m_window->get_frame_buffer_width() / 2;
+	m_fullHeight = m_window->get_frame_buffer_height();
 
 	// uint32_t textureBuffer[halfWidth * fullHeight];
 
@@ -46,7 +46,7 @@ void Map::generate()
 
 void Map::draw_walls(const GLShaderProgram& shader)
 {
-	const auto projectPlaneDistance = static_cast<float>(m_window->get_width() / (2 * tan(FOV / 2)));
+	const auto projectPlaneDistance = static_cast<float>(m_window->get_frame_buffer_width() / (2 * tan(FOV / 2)));
 
 	for (int col = 0; col < m_rays->size(); col++)
 	{

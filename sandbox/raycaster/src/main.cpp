@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_projection.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <print>
@@ -20,12 +21,14 @@ Timer timer;
 Grid grid;
 Player player;
 Map map;
-
+constexpr auto CellSize = glm::vec2{20.0f, 20.0f};
 float angle;
 
 
 void draw_left(const GLShaderProgram& shader);
 void draw_right(const GLShaderProgram& shader);
+
+glm::ivec2 get_mouse_grid_position(glm::vec4 worldPos);
 
 int main()
 {
@@ -47,7 +50,7 @@ int main()
 	shader_3d.link();
 
 	// Grid from -1,-1 to 1,1 (full normalized ortho space)
-	grid = Grid(glm::vec2{0, 0}, glm::vec2{20.0f, 20.0f});
+	grid = Grid(glm::vec2{0, 0}, CellSize);
 	grid.generate(20, 20);
 	player._init();
 	player.Position = glm::vec3{10, 0, 10};
@@ -100,9 +103,9 @@ int main()
 
 		player._process(delta);
 
-		rate = FOV / (static_cast<float>(window->get_width() / 2)); // Size of viewport
+		rate = FOV / (static_cast<float>(window->get_frame_buffer_width() / 2)); // Size of viewport
 		rays->clear();
-		rays->resize(window->get_width() / 2);
+		rays->resize(window->get_frame_buffer_width() / 2);
 
 		draw_left(shader_2d);
 		draw_right(shader_3d);
@@ -118,8 +121,9 @@ void draw_left(const GLShaderProgram& shader)
 	// Left: top-down ortho
 	constexpr float zoom = 10.0f;
 
-	const float vpWidth = static_cast<float>(window->get_width()) / 2.0f;
-	const float vpHeight = static_cast<float>(window->get_height());
+	const float vpWidth = static_cast<float>(window->get_frame_buffer_width()) / 2.0f;
+
+	const float vpHeight = static_cast<float>(window->get_frame_buffer_height());
 	const float aspect = vpWidth / vpHeight;
 
 	Window::set_viewport(0, 0, static_cast<int>(vpWidth), static_cast<int>(vpHeight));
@@ -173,6 +177,43 @@ void draw_left(const GLShaderProgram& shader)
 	for (int i = 0; i < rays->size(); i++)
 	{
 		rays->at(i)._draw(shader);
+	}
+
+
+	glm::ivec2 gridPos{-1, -1};	// Invalid grid coordinate by default
+	if (const glm::vec2 mousePos = InputManager::get_mouse_position();
+		mousePos.x < window->get_width() / 2)
+	{
+		// Convert mouse coordinate to grid position
+		const glm::vec4 viewport(0.0f, 0.0f, window->get_width() / 2.0f, window->get_height());
+		const glm::vec3 screenPos(mousePos.x, window->get_height() - mousePos.y,
+								  0.0f); // Y needs reversed
+		const glm::vec3 worldPos = glm::unProject(screenPos, view, proj, viewport);
+
+		gridPos = {static_cast<int>(std::floor(worldPos.x)),
+				   static_cast<int>(std::floor(worldPos.y))};
+	}
+
+	// Since the map is a fixed size, must check if the gridPos is in-bounds
+	// Based on the key pressed, update the integer at the gridPos
+	if (gridPos.x >= 0 && gridPos.y >= 0 && gridPos.x < 20 && gridPos.y < 20)
+	{
+		if (InputManager::is_pressed(KEY_0))
+		{
+			generatedMap[gridPos.y][gridPos.x] = 0;
+		}
+		else if (InputManager::is_pressed(KEY_1))
+		{
+			generatedMap[gridPos.y][gridPos.x] = 1;
+		}
+		else if (InputManager::is_pressed(KEY_2))
+		{
+			generatedMap[gridPos.y][gridPos.x] = 2;
+		}
+		else if (InputManager::is_pressed(KEY_3))
+		{
+			generatedMap[gridPos.y][gridPos.x] = 3;
+		}
 	}
 }
 

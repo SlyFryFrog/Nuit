@@ -58,10 +58,14 @@ target_link_libraries(${PROJECT_NAME}
         GLEW::GLEW
 )
 
+#####################################
+# Copy resources to build directory #
+#####################################
+
 # If in debug mode, create symlinks of all resource files to enable hot-reloading capabilities.
 # For release/distribution builds, it should create shallow copies (new copies).
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    foreach(dir shaders)
+    foreach(dir shaders data)
         add_custom_command(
                 TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${dir}

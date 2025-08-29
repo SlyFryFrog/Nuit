@@ -27,6 +27,8 @@ namespace Nuit
 		static inline double m_prevMouseX;
 		static inline double m_prevMouseY;
 		static inline bool m_firstMouse = true;
+		static inline double m_deltaX;
+		static inline double m_deltaY;
 
 	public:
 		/**
@@ -43,7 +45,7 @@ namespace Nuit
 		static void _process_mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 
 		/**
-		 * @brief Processes and updates Input states and events.
+		 * @brief Processes and updates Input states and events. Is called internally by Window.
 		 */
 		static void _process();
 
@@ -70,6 +72,11 @@ namespace Nuit
 		static glm::vec2 get_mouse_position()
 		{
 			return {m_prevMouseX, m_prevMouseY};
+		}
+
+		static glm::vec2 get_mouse_delta()
+		{
+			return {m_deltaX, m_deltaY};
 		}
 
 	private:

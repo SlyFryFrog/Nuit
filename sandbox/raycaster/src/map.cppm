@@ -1,5 +1,7 @@
 module;
 #include <memory>
+#include <sstream>
+#include <string>
 #include <vector>
 export module map;
 
@@ -58,6 +60,31 @@ public:
 	void set_rays(const std::shared_ptr<std::vector<Ray>>& rays)
 	{
 		m_rays = rays;
+	}
+
+	void load_map(const std::string& path)
+	{
+		std::stringstream content;
+		content << File::read(path).value_or("");
+
+		int width, height;
+
+		if (!content.eof())
+		{
+			std::string line;
+			std::getline(content, line);
+		}
+
+		while (!content.eof())
+		{
+			std::string line;
+			std::getline(content, line);
+
+			for (const auto& c : line)
+			{
+
+			}
+		}
 	}
 
 private:

@@ -72,4 +72,11 @@ namespace Nuit
 		KEY_LEFT_SUPER = GLFW_KEY_LEFT_SUPER,
 		KEY_RIGHT_SUPER = GLFW_KEY_RIGHT_SUPER,
 	};
+
+	export enum Mouse : int
+	{
+		MOUSE_LEFT = 0,
+		MOUSE_RIGHT = 1,
+		MOUSE_MIDDLE = 2,
+	};
 }
