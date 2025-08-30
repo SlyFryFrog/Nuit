@@ -93,9 +93,9 @@ namespace Nuit
 			}
 
 			// Ensure we aren't going out of bounds
-			if (mapCheck.x >= 0 && mapCheck.x < map.at(mapCheck.y).size() && mapCheck.y >= 0 && mapCheck.y < map.size())
+			if (mapCheck.y >= 0 && mapCheck.y < map.size() && mapCheck.x >= 0 && mapCheck.x < map.at(mapCheck.y).size())
 			{
-				switch (map[mapCheck.y][mapCheck.x])
+				switch (map.at(mapCheck.y).at(mapCheck.x))
 				{
 				case 1:
 				case 2:

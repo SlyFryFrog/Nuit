@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_projection.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
+#include <iostream>
 #include <print>
 #include <thread>
 
@@ -205,23 +206,26 @@ void draw_left(const GLShaderProgram& shader)
 
 	// Since the map is a fixed size, must check if the gridPos is in-bounds
 	// Based on the key pressed, update the integer at the gridPos
-	if (gridPos.x >= 0 && gridPos.y >= 0 && gridPos.x < 20 && gridPos.y < 20)
+	if (gridPos.y >= 0 && gridPos.y < generatedMap.size())
 	{
-		if (InputManager::is_pressed(KEY_SPACE))
+		if (gridPos.x >= 0 && gridPos.x < generatedMap.at(gridPos.y).size())
 		{
-			generatedMap[gridPos.y][gridPos.x] = 0;
-		}
-		else if (InputManager::is_pressed(KEY_1))
-		{
-			generatedMap[gridPos.y][gridPos.x] = 1;
-		}
-		else if (InputManager::is_pressed(KEY_2))
-		{
-			generatedMap[gridPos.y][gridPos.x] = 2;
-		}
-		else if (InputManager::is_pressed(KEY_3))
-		{
-			generatedMap[gridPos.y][gridPos.x] = 3;
+			if (InputManager::is_pressed(KEY_SPACE))
+			{
+				generatedMap.at(gridPos.y).at(gridPos.x) = 0;
+			}
+			else if (InputManager::is_pressed(KEY_1))
+			{
+				generatedMap.at(gridPos.y).at(gridPos.x) = 1;
+			}
+			else if (InputManager::is_pressed(KEY_2))
+			{
+				generatedMap.at(gridPos.y).at(gridPos.x) = 2;
+			}
+			else if (InputManager::is_pressed(KEY_3))
+			{
+				generatedMap.at(gridPos.y).at(gridPos.x) = 3;
+			}
 		}
 	}
 }
