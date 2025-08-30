@@ -22,6 +22,7 @@ namespace Nuit
 		ss << file.rdbuf();
 		return ss.str();
 	}
+
 	void File::write(const std::string& path, const std::string& content)
 	{
 		std::ofstream out(path, std::ios::trunc);

@@ -49,7 +49,6 @@ int main()
 	shader_3d.compile_and_attach("shaders/3d/fragment.frag", FRAGMENT);
 	shader_3d.link();
 
-	// Grid from -1,-1 to 1,1 (full normalized ortho space)
 	grid = Grid(glm::vec2{0, 0}, CellSize);
 	grid.generate(20, 20);
 	player._init();
@@ -198,7 +197,7 @@ void draw_left(const GLShaderProgram& shader)
 	// Based on the key pressed, update the integer at the gridPos
 	if (gridPos.x >= 0 && gridPos.y >= 0 && gridPos.x < 20 && gridPos.y < 20)
 	{
-		if (InputManager::is_pressed(KEY_0))
+		if (InputManager::is_pressed(KEY_SPACE))
 		{
 			generatedMap[gridPos.y][gridPos.x] = 0;
 		}
