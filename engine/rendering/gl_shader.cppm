@@ -25,6 +25,9 @@ namespace Nuit
 
 		[[nodiscard]] GLuint id() const;
 
+		/**
+		 * @brief Creates a new shader id - should be called before
+		 */
 		void create();
 
 		void bind() const;

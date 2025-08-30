@@ -34,7 +34,7 @@ namespace Nuit
 				for (int x = 0; x < sizeX; ++x)
 				{
 					const int index = (y * sizeX + x) * 3;		// Shift to start position
-					const bool isPurple = (x + y) / 8 % 2 == 0;	// Purple for every 8x8
+					const bool isPurple = (x + y) / 8 % 2 == 0; // Purple for every 8x8
 					pixels[index + 0] = isPurple ? 255 : 0;
 					pixels[index + 1] = 0;
 					pixels[index + 2] = isPurple ? 255 : 0;
@@ -44,7 +44,8 @@ namespace Nuit
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sizeX, sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sizeX, sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE,
+						 pixels.data());
 		}
 	};
 

@@ -32,12 +32,9 @@ namespace Nuit
 
 		[[nodiscard]] const std::vector<glm::vec2>& get_vertices() const;
 
-		template <size_t R, size_t C>
-		void draw_filled(const GLShaderProgram& shader, const int (&map)[R][C])
+		void draw_filled(const GLShaderProgram& shader, const std::vector<std::vector<int>>& map)
 		{
-			const int rows = R;
-			const int cols = C;
-			const float dx = Size.x / static_cast<float>(cols);
+			const int rows = map.size();
 			const float dy = Size.y / static_cast<float>(rows);
 
 			shader.bind();
@@ -45,6 +42,9 @@ namespace Nuit
 
 			for (int r = 0; r < rows; r++)
 			{
+				const int cols = map.at(r).size();
+				const float dx = Size.x / static_cast<float>(cols);
+
 				for (int c = 0; c < cols; c++)
 				{
 					switch (map[r][c])

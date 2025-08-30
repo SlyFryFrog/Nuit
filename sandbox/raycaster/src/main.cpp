@@ -80,6 +80,16 @@ int main()
 			std::println("Finished reloading shaders");
 		}
 
+		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_L}))
+		{
+			map.load_map("data/map");
+		}
+
+		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_S}))
+		{
+			map.save_map("data/map");
+		}
+
 		if (InputManager::is_pressed(KEY_E))
 		{
 			angle -= rotationSpeed * static_cast<float>(delta);
@@ -218,5 +228,5 @@ void draw_left(const GLShaderProgram& shader)
 
 void draw_right(const GLShaderProgram& shader)
 {
-	map._draw(shader);
+	map.draw_perspective_view(shader);
 }

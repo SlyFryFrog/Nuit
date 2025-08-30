@@ -12,7 +12,7 @@ export constexpr float WallTileSize = 1.0f; // Changes the ratio for the height 
 export constexpr float FOV = 90;
 export float rate;
 
-export int generatedMap[][20] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+export std::vector<std::vector<int>> generatedMap = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 						{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
 						{1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
 						{1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -47,45 +47,17 @@ public:
 	Map(int width, int height, const std::shared_ptr<Window>& window,
 		const std::shared_ptr<std::vector<Ray>>& rays);
 
-	void _draw(const GLShaderProgram& shader);
+	void draw_grid_view(const GLShaderProgram& shader);
 
-	void draw_grid_view();
-
-	void draw_perspective_view();
+	void draw_perspective_view(const GLShaderProgram& shader);
 
 	void generate();
 
 	void use_texture(int tile);
 
-	void set_rays(const std::shared_ptr<std::vector<Ray>>& rays)
-	{
-		m_rays = rays;
-	}
+	static void load_map(const std::string& path);
 
-	void load_map(const std::string& path)
-	{
-		std::stringstream content;
-		content << File::read(path).value_or("");
-
-		int width, height;
-
-		if (!content.eof())
-		{
-			std::string line;
-			std::getline(content, line);
-		}
-
-		while (!content.eof())
-		{
-			std::string line;
-			std::getline(content, line);
-
-			for (const auto& c : line)
-			{
-
-			}
-		}
-	}
+	static void save_map(const std::string& path);
 
 private:
 	void draw_walls(const GLShaderProgram& shader);

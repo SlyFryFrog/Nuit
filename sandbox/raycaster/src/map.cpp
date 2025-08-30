@@ -1,7 +1,10 @@
 module;
+#include <fstream>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/glm.hpp>
+#include <iostream>
 #include <memory>
+#include <print>
 #include <vector>
 module map;
 
@@ -14,11 +17,16 @@ Map::Map(int width, int height)
 }
 
 Map::Map(int width, int height, const std::shared_ptr<Window>& window,
-		 const std::shared_ptr<std::vector<Ray>>& rays) : m_rays(rays), m_window(window)
+		 const std::shared_ptr<std::vector<Ray>>& rays) :
+	m_rays(rays), m_window(window)
 {
 }
 
-void Map::_draw(const GLShaderProgram& shader)
+void Map::draw_grid_view(const GLShaderProgram& shader)
+{
+}
+
+void Map::draw_perspective_view(const GLShaderProgram& shader)
 {
 	m_halfWidth = m_window->get_frame_buffer_width() / 2;
 	m_fullHeight = m_window->get_frame_buffer_height();
@@ -36,17 +44,64 @@ void Map::_draw(const GLShaderProgram& shader)
 	shader.set_uniform("uModel", glm::mat4(1.0f));
 
 	draw_walls(shader);
-	shader.unbind();	// Optionally call unbind
+	shader.unbind(); // Optionally call unbind
 }
 
 void Map::generate()
 {
+}
 
+void Map::load_map(const std::string& path)
+{
+	std::ifstream file(path);
+
+	if (!file.is_open())
+	{
+		std::println(std::cerr, "Failed to open file: ", path);
+		return;
+	}
+
+	std::vector<std::vector<int>> map;
+
+	std::string line;
+	while (std::getline(file, line))
+	{
+		std::istringstream iss(line);
+		std::vector<int> row;
+		int value;
+
+		while (iss >> value) {
+			row.push_back(value);
+		}
+
+		map.push_back(row);
+	}
+
+	generatedMap = map;
+}
+
+void Map::save_map(const std::string& path)
+{
+	std::stringstream content;
+
+	// Iterate through map and append to string
+	for (const auto& i : generatedMap)
+	{
+		for (const auto& j : i)
+		{
+			content << j << " ";
+		}
+
+		content << "\n";
+	}
+
+	File::write(path, content.str());
 }
 
 void Map::draw_walls(const GLShaderProgram& shader)
 {
-	const auto projectPlaneDistance = static_cast<float>(m_window->get_frame_buffer_width() / (2 * tan(FOV / 2)));
+	const auto projectPlaneDistance = static_cast<float>(m_window->get_frame_buffer_width() /
+														 (2 * tan(FOV / 2)));
 
 	for (int col = 0; col < m_rays->size(); col++)
 	{

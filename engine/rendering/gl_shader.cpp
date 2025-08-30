@@ -34,7 +34,10 @@ namespace Nuit
 
 	void GLShaderProgram::bind() const
 	{
-		glUseProgram(m_program);
+		if (m_program)
+		{
+			glUseProgram(m_program);
+		}
 	}
 
 	void GLShaderProgram::unbind()
@@ -44,7 +47,10 @@ namespace Nuit
 
 	void GLShaderProgram::attach_shader(const GLuint shader) const
 	{
-		glAttachShader(m_program, shader);
+		if (m_program)
+		{
+			glAttachShader(m_program, shader);
+		}
 	}
 
 	void GLShaderProgram::compile_and_attach(const std::string& file, const GLenum type) const

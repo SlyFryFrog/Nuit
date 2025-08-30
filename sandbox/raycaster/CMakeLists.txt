@@ -65,7 +65,7 @@ target_link_libraries(${PROJECT_NAME}
 # If in debug mode, create symlinks of all resource files to enable hot-reloading capabilities.
 # For release/distribution builds, it should create shallow copies (new copies).
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    foreach(dir shaders data)
+    foreach(dir shaders data assets)
         add_custom_command(
                 TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E remove_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/${dir}
@@ -77,6 +77,8 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     endforeach()
 else()
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 ###############################
