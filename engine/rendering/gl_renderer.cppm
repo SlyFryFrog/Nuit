@@ -1,6 +1,4 @@
 module;
-#include <GL/glew.h>
-#include <print>
 export module nuit:gl_renderer;
 
 namespace Nuit
@@ -19,39 +17,10 @@ namespace Nuit
 
 		~GLRenderer() = default;
 
-		static void _init()
-		{
-			glewExperimental = GL_TRUE;
+		static void _init();
 
-			if (const GLenum err = glewInit(); err != GLEW_OK)
-			{
-				std::println("GLEW failed to initialize correctly: {0}",
-							 reinterpret_cast<const char*>(glewGetErrorString(err)));
-			}
+		static void set_polygon_mode(PolygonMode mode);
 
-			std::println("Renderer: {0}", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-			std::println("OpenGL version: {0}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-
-			int numAttributes;
-			glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &numAttributes);
-			std::println("Maximum number of vertex attributes supported: {0}", numAttributes);
-		}
-
-		static void set_polygon_mode(const PolygonMode mode)
-		{
-			if (mode == PolygonMode::FILL)
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
-			else if (mode == PolygonMode::POINT)
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-			}
-			else if (mode == PolygonMode::LINE)
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			}
-		}
-
+		static void enable_depth_testing(bool enable);
 	};
 }

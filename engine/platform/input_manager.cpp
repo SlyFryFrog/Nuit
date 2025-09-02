@@ -6,9 +6,6 @@ module;
 #include <queue>
 module nuit;
 
-import :input_event;
-import :input_map;
-
 namespace Nuit
 {
 	void InputManager::_process_input_callback(GLFWwindow* window, const int key,

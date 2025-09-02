@@ -50,8 +50,9 @@ int main()
 	shader_3d.compile_and_attach("shaders/3d/fragment.frag", FRAGMENT);
 	shader_3d.link();
 
+	map.load_map("data/map");
 	grid = Grid(glm::vec2{0, 0}, CellSize);
-	grid.generate(20, 20);
+	grid.generate(generatedMap);
 	player._init();
 	player.Position = glm::vec3{10, 0, 10};
 
@@ -62,7 +63,7 @@ int main()
 		constexpr float rotationSpeed = 2.5f;
 		const double delta = timer.delta();
 
-		if (InputManager::is_ordered_pressed({KEY_LEFT_ALT, KEY_ESCAPE}))
+		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_Q}))
 		{
 			break;
 		}
@@ -84,6 +85,9 @@ int main()
 		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_L}))
 		{
 			map.load_map("data/map");
+
+			grid = Grid(glm::vec2{0, 0}, CellSize);
+			grid.generate(generatedMap);
 		}
 
 		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_S}))
@@ -128,7 +132,6 @@ int main()
 
 void draw_left(const GLShaderProgram& shader)
 {
-	// Left: top-down ortho
 	constexpr float zoom = 10.0f;
 
 	const float vpWidth = static_cast<float>(window->get_frame_buffer_width()) / 2.0f;

@@ -6,9 +6,7 @@ int main()
 {
 	Window window("Shapes", 600, 600);
 	window.init();
-
 	GLRenderer::_init();	// Before calling GL-related code, we need to initiate the renderer
-
 
 	GLShaderProgram shader{};
 	shader.create();
@@ -22,10 +20,11 @@ int main()
 
 	while (!window.is_done())
 	{
+		Window::clear();
+
 		circle._draw(shader);
 
 		window.process();
-		Window::clear();
 	}
 
 	return 0;

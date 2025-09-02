@@ -39,6 +39,7 @@ namespace Nuit
 		glDeleteBuffers(1, &vbo);
 		glDeleteVertexArrays(1, &vao);
 	}
+
 	void Ray2D::cast(const std::vector<std::vector<int>>& map)
 	{
 		constexpr float maxDistance = 100.0f;

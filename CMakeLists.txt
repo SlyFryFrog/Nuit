@@ -70,7 +70,5 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (BUILD_SANDBOX)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sandbox/raycaster)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sandbox/shapes)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sandbox/matrix-stack)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sandbox)
 endif()

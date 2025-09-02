@@ -2,9 +2,11 @@ module;
 #include <fstream>
 #include <iosfwd>
 #include <iostream>
-#include <print>
+#include <optional>
 #include <ostream>
+#include <print>
 #include <sstream>
+#include <string>
 module nuit;
 
 namespace Nuit
@@ -47,4 +49,4 @@ namespace Nuit
 
 		file << content;
 	}
-}
+} // namespace Nuit

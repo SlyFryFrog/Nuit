@@ -72,25 +72,19 @@ void Player::_draw(const GLShaderProgram& shader)
 
 void Player::move_and_slide(const glm::vec3 movement)
 {
-	const glm::vec3 temp = Position + movement;
+	const float newX = Position.x + movement.x;
+	const float newZ = Position.z + movement.z;
+	const int mapX = std::floor(Position.x + movement.x);
+	const int mapY = std::floor(Position.z + movement.z);
 
-	int mapY = static_cast<int>(std::floor(temp.z));
-	int mapX = static_cast<int>(std::floor(temp.x));
-
-	if (!(generatedMap[static_cast<int>(Position.z)][static_cast<int>(Position.x + movement.x)] ||
-		  generatedMap[static_cast<int>(Position.z + movement.z)][static_cast<int>(Position.x)]))
+	if (newX >= 0 && newX < generatedMap[mapY].size() &&
+		generatedMap[static_cast<int>(Position.z)][static_cast<int>(newX)] == 0)
 	{
-		if (mapX < 0 || mapY < 0 || mapX >= 20 || mapY >= 20 || generatedMap[mapY][mapX] != 1)
-		{
-			Position = temp;
-		}
-		else if (generatedMap[mapY][static_cast<int>(Position.x)] != 1)
-		{
-			Position.z = temp.z;
-		}
-		else if (generatedMap[static_cast<int>(Position.z)][mapX] != 1)
-		{
-			Position.x = temp.x;
-		}
+		Position.x = newX;
+	}
+	if (newZ >= 0 && newZ < generatedMap.size() &&
+		generatedMap[static_cast<int>(newZ)][static_cast<int>(Position.x)] == 0)
+	{
+		Position.z = newZ;
 	}
 }

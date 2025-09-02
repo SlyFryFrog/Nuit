@@ -4,8 +4,6 @@ module;
 #include <print>
 module nuit;
 
-import :file;
-
 namespace Nuit
 {
 	GLShaderProgram::~GLShaderProgram()

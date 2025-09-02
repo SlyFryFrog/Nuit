@@ -28,11 +28,13 @@ namespace Nuit
 
 		~Window() = default;
 
-		void init();
+		void init(int majorVersion = 4, int minorVersion = 1);
 
 		void process() const;
 
 		static void clear();
+
+		void set_done(bool done);
 
 		[[nodiscard]] bool is_done() const;
 
@@ -53,6 +55,11 @@ namespace Nuit
 		static void set_viewport(int x, int y, int width, int height);
 
 		void reset_viewport_to_window() const;
+
+		void set_windowed(int width, int height);
+		void set_fullscreen();
+
+		void set_glfw_window_defaults();
 
 		static void _frame_buffer_size_callback(GLFWwindow* window, int width, int height);
 	};

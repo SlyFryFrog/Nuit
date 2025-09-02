@@ -7,7 +7,7 @@ module nuit;
 
 namespace Nuit
 {
-	void Window::init()
+	void Window::init(const int majorVersion, const int minorVersion)
 	{
 		if (!glfwInit())
 		{
@@ -16,8 +16,8 @@ namespace Nuit
 		}
 
 		// Support latest version available on macOS
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, majorVersion);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minorVersion);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 
@@ -35,16 +35,7 @@ namespace Nuit
 		}
 
 		set_title(m_title);
-
-		glfwGetWindowSize(m_window, &m_width, &m_height);
-		glfwGetFramebufferSize(m_window, &m_fbWidth, &m_fbHeight);
-		glfwSetFramebufferSizeCallback(m_window, _frame_buffer_size_callback);
-		glfwSetKeyCallback(m_window, InputManager::_process_input_callback);
-		glfwSetCursorPosCallback(m_window, InputManager::_process_mouse_callback);
-		glfwSetWindowUserPointer(m_window, this);
-
-		glfwMakeContextCurrent(m_window);
-		glViewport(0, 0, m_fbWidth, m_fbHeight); // use framebuffer size for OpenGL
+		set_glfw_window_defaults();
 	}
 
 	void Window::process() const
@@ -56,8 +47,12 @@ namespace Nuit
 
 	void Window::clear()
 	{
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+	void Window::set_done(bool done)
+	{
+		glfwSetWindowShouldClose(m_window, GLFW_TRUE);
 	}
 
 	bool Window::is_done() const
@@ -117,6 +112,47 @@ namespace Nuit
 	void Window::reset_viewport_to_window() const
 	{
 		glViewport(0, 0, m_width, m_height);
+	}
+
+	void Window::set_windowed(const int width, const int height)
+	{
+		m_width = width;
+		m_height = height;
+
+		glfwDestroyWindow(m_window);
+
+		m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
+		set_glfw_window_defaults();
+	}
+
+	void Window::set_fullscreen()
+	{
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+		m_height = mode->height;
+		m_width = mode->width;
+
+		glfwDestroyWindow(m_window);
+
+		glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+		m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), monitor, nullptr);
+
+		set_glfw_window_defaults();
+		glViewport(0, 0, m_width, m_height);
+	}
+
+	void Window::set_glfw_window_defaults()
+	{
+		glfwGetWindowSize(m_window, &m_width, &m_height);
+		glfwGetFramebufferSize(m_window, &m_fbWidth, &m_fbHeight);
+		glfwSetFramebufferSizeCallback(m_window, _frame_buffer_size_callback);
+		glfwSetKeyCallback(m_window, InputManager::_process_input_callback);
+		glfwSetCursorPosCallback(m_window, InputManager::_process_mouse_callback);
+		glfwSetWindowUserPointer(m_window, this);
+
+		glfwMakeContextCurrent(m_window);
+		glViewport(0, 0, m_fbWidth, m_fbHeight); // use framebuffer size for OpenGL
 	}
 
 	void Window::_frame_buffer_size_callback(GLFWwindow* window, const int width,
