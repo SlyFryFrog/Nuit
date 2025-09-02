@@ -15,7 +15,7 @@ namespace Nuit
 	 *
 	 * @note Works on macOS and Linux. Returns an empty path on failure.
 	 */
-	std::filesystem::path get_working_directory()
+	std::string get_working_directory()
 	{
 		// MacOS doesn't use the pwd of the executable when launching from clicking on the
 		// executable directly.
@@ -24,7 +24,7 @@ namespace Nuit
 		uint32_t size = sizeof(buffer);
 		if (_NSGetExecutablePath(buffer, &size) == 0)
 		{
-			return std::filesystem::canonical(buffer).parent_path();
+			return std::filesystem::canonical(buffer).parent_path().string();
 		}
 #endif
 		// Default implementation

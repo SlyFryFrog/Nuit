@@ -17,7 +17,7 @@ namespace Nuit
 	 *
 	 * @note Works on macOS and Linux. Returns an empty path on failure.
 	 */
-	export std::filesystem::path get_working_directory();
+	export std::string get_working_directory();
 
 	/**
 	 * @brief Current working directory where the executable is located. Is determined at runtime.

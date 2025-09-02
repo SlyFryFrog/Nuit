@@ -31,6 +31,8 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(GLEW CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
+add_library(stb_image SHARED ${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb_image.cpp)
+
 #####################
 # Create executable #
 #####################
@@ -55,7 +57,14 @@ target_link_libraries(${PROJECT_NAME}
         glfw
         OpenGL::GL
         GLEW::GLEW
+        stb_image
 )
+
+target_include_directories(${PROJECT_NAME}
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor
+)
+
 
 ###############################
 # Compile commands for clangd #

@@ -6,6 +6,7 @@ module;
 #include <glm/vec3.hpp>
 #include <iosfwd>
 #include <iostream>
+#include <optional>
 #include <ostream>
 #include <sstream>
 #include <unordered_map>
@@ -45,10 +46,46 @@ namespace Nuit
 		}
 	}
 
-	void Mesh::draw() const
+	void Mesh::draw(const GLShaderProgram& shader) const
 	{
+		if (m_material)
+		{
+			// If material textures were loaded correctly, we set the sampler2D id to the textureID
+			if (m_material->diffuseTex != 0)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, m_material->diffuseTex);
+				shader.set_uniform("uDiffuseTex", 0);
+			}
+			else
+			{
+				// Fallback color
+				shader.set_uniform("uKd", m_material->Kd);
+			}
+
+			if (m_material->ambientTex != 0)
+			{
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, m_material->ambientTex);
+				shader.set_uniform("uAmbientTex", 1);
+			}
+			else
+			{
+				// Fallback color
+				shader.set_uniform("uKa", m_material->Ka);
+			}
+
+			// Set all other material-specific uniforms
+			shader.set_uniform("uKs", m_material->Ks);
+			shader.set_uniform("uKe", m_material->Ke);
+			shader.set_uniform("uNs", m_material->Ns);
+			shader.set_uniform("uD", m_material->d);
+			shader.set_uniform("uIllum", m_material->illum);
+		}
+
 		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT,
+					   nullptr);
 		glBindVertexArray(0);
 	}
 
@@ -85,6 +122,9 @@ namespace Nuit
 			{
 				glm::vec2 uv;
 				iss >> uv.x >> uv.y;
+
+				// Since we only care about 2D texcoords, we need to flip y
+				uv.y = 1.0f - uv.y;
 				uvs.push_back(uv);
 			}
 			else if (token == "vn")
@@ -179,6 +219,17 @@ namespace Nuit
 			}
 			else if (token == "mtllib")
 			{
+				std::string prefix = filename.substr(0, filename.find_last_of('/')) + "/";
+				iss >> token;
+
+				if (auto mat = load_mtllib(prefix + token); mat.has_value())
+				{
+					m_material = std::make_shared<Material>(mat.value());
+				}
+			}
+			else if (token == "usemtl")
+			{
+				// Do nothing for now as we don't support more than 1 material
 			}
 		}
 
@@ -199,7 +250,8 @@ namespace Nuit
 
 		glGenBuffers(1, &m_ebo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(uint32_t), m_indices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(uint32_t), m_indices.data(),
+					 GL_STATIC_DRAW);
 
 		// Position
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
@@ -231,6 +283,102 @@ namespace Nuit
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		return true;
+	}
+
+	std::optional<Material> Mesh::load_mtllib(const std::string& filename)
+	{
+		Material material{};
+		std::ifstream file(filename);
+
+		if (!file.is_open())
+		{
+			std::println(std::cerr, "Failed to open MTL file: {}", filename);
+			return std::nullopt;
+		}
+
+		std::string line;
+		while (std::getline(file, line))
+		{
+			std::istringstream iss(line);
+			std::string token;
+			iss >> token;
+
+			if (token == "newmtl")
+			{
+				iss >> material.name;
+			}
+			else if (token == "Ns")
+			{
+				iss >> material.Ns;
+			}
+			else if (token == "d")
+			{
+				iss >> material.d;
+			}
+			else if (token == "Tr")
+			{
+				// If Tr is set, we override d since they are the inverse of each other
+				float tr;
+				iss >> tr;
+				material.d = 1.0f - tr;
+			}
+			else if (token == "Ka")
+			{
+				iss >> material.Ka.r >> material.Ka.g >> material.Ka.b;
+			}
+			else if (token == "Kd")
+			{
+				iss >> material.Kd.r >> material.Kd.g >> material.Kd.b;
+			}
+			else if (token == "Ks")
+			{
+				iss >> material.Ks.r >> material.Ks.g >> material.Ks.b;
+			}
+			else if (token == "Ke")
+			{
+				iss >> material.Ke.r >> material.Ke.g >> material.Ke.b;
+			}
+			else if (token == "illum")
+			{
+				iss >> material.illum;
+			}
+			else if (token == "map_Ka")
+			{
+				std::string tex;
+				iss >> tex;
+				material.map_Ka = tex;
+			}
+			else if (token == "map_Kd")
+			{
+				std::string tex;
+				iss >> tex;
+				material.map_Kd = tex;
+			}
+		}
+
+		// Set prefix to use the same relative path as the .obj file
+		std::string prefix = filename.substr(0, filename.find_last_of('/')) + "/";
+
+		// Attempt to load textures, fallback to programmatically generated texture
+		if (material.map_Kd.has_value())
+		{
+			material.diffuseTex = load_texture(prefix + material.map_Kd.value());
+		}
+		else
+		{
+			material.diffuseTex = load_missing_texture();
+		}
+
+		if (material.map_Ka.has_value())
+		{
+			material.ambientTex = load_texture(prefix + material.map_Ka.value());
+		}
+		else
+		{
+			material.ambientTex = load_missing_texture();
+		}
+
+		return material;
 	}
 
 	void Mesh::reset_buffers() const

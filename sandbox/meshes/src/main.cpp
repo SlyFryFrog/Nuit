@@ -1,6 +1,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
+#include <filesystem>
 
 import nuit;
 
@@ -8,21 +9,21 @@ using namespace Nuit;
 
 void process_input();
 
-Window window("Shapes", 600, 600);
+Window window("Meshes", 600, 600);
 
 int main()
 {
+	std::filesystem::current_path(WorkingDirectory);
 	window.init();
 	GLRenderer::_init();	// Before calling GL-related code, we need to initiate the renderer
 
 	GLRenderer::enable_depth_testing(true);
 	GLRenderer::set_polygon_mode(FILL);
 
-
 	GLShaderProgram shader{};
 	shader.create();
-	shader.compile_and_attach("shaders/basic_vert.vert", VERTEX);
-	shader.compile_and_attach("shaders/basic_frag.frag", FRAGMENT);
+	shader.compile_and_attach("shaders/basic_tex.vert", VERTEX);
+	shader.compile_and_attach("shaders/basic_tex.frag", FRAGMENT);
 	shader.link();
 
 	Mesh mesh{};
@@ -58,7 +59,7 @@ int main()
 		shader.set_uniform("uProjection", projection);
 		shader.set_uniform("uLightPos", glm::vec3(15.0f, 15.0f, -15.0f));
 
-		mesh.draw();
+		mesh.draw(shader);
 
 		window.process();
 	}

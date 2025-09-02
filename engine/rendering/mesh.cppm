@@ -3,6 +3,8 @@ module;
 #include <functional>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <optional>
+#include <string>
 export module nuit:mesh;
 
 import :gl_shader;
@@ -22,6 +24,27 @@ namespace Nuit
 			return Position == other.Position && Normal == other.Normal &&
 				TexCoords == other.TexCoords;
 		}
+	};
+
+	export struct Material
+	{
+		std::string name;
+
+		glm::vec3 Ka = {1.0f, 1.0f, 1.0f}; // Ambient color
+		glm::vec3 Kd = {1.0f, 1.0f, 1.0f}; // Diffuse color
+		glm::vec3 Ks = {0.0f, 0.0f, 0.0f}; // Specular color
+		glm::vec3 Ke = {0.0f, 0.0f, 0.0f}; // Emissive color
+
+		float Ns = 32.0f; // Shininess
+		float d = 1.0f;	  // Opacity
+		int illum = 2;	  // Illumination model
+
+		std::optional<std::string> map_Ka; // Ambient texture
+		std::optional<std::string> map_Kd; // Diffuse texture
+
+		// OpenGL handles
+		GLuint diffuseTex = 0;
+		GLuint ambientTex = 0;
 	};
 
 	struct VertexHasher
@@ -73,6 +96,7 @@ namespace Nuit
 		GLuint m_vao{};
 		GLuint m_vbo{};
 		GLuint m_ebo{};
+		std::shared_ptr<Material> m_material;
 
 	public:
 		Mesh() = default;
@@ -81,10 +105,12 @@ namespace Nuit
 
 		bool load(const std::string& filename);
 
-		void draw() const;
+		void draw(const GLShaderProgram& shader) const;
 
 	private:
 		bool load_obj(const std::string& filename);
+
+		static std::optional<Material> load_mtllib(const std::string& filename);
 
 		void reset_buffers() const;
 	};
