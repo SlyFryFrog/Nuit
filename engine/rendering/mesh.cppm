@@ -8,10 +8,11 @@ module;
 export module nuit:mesh;
 
 import :gl_shader;
+import :utils;
 
 namespace Nuit
 {
-	export struct Vertex
+	struct Vertex
 	{
 		glm::vec3 Position{};
 		glm::vec3 Normal{};
@@ -26,7 +27,7 @@ namespace Nuit
 		}
 	};
 
-	export struct Material
+	struct Material
 	{
 		std::string name;
 
@@ -89,19 +90,28 @@ namespace Nuit
 		}
 	};
 
-	export class Mesh
+	struct Mesh
 	{
-		std::vector<Vertex> m_vertices;
-		std::vector<uint32_t> m_indices;
+		std::vector<Vertex> Vertices;
+		std::vector<uint32_t> Indices;
+		std::shared_ptr<Material> Material;
+		unsigned int MaterialIndex;
 		GLuint m_vao{};
 		GLuint m_vbo{};
 		GLuint m_ebo{};
+	};
+
+	export class MeshLoader
+	{
 		std::shared_ptr<Material> m_material;
+		std::vector<Mesh> m_meshes;
+		std::unordered_map<std::string, std::shared_ptr<Material>, StringHasher> m_materials;
+		Mesh* m_activeMesh = nullptr;
 
 	public:
-		Mesh() = default;
+		MeshLoader() = default;
 
-		~Mesh();
+		~MeshLoader() = default;
 
 		bool load(const std::string& filename);
 
@@ -110,8 +120,10 @@ namespace Nuit
 	private:
 		bool load_obj(const std::string& filename);
 
-		static std::optional<Material> load_mtllib(const std::string& filename);
+		void load_mtllib(const std::string& filename);
 
-		void reset_buffers() const;
+		void reset();
+
+		void set_attributes();
 	};
 } // namespace Nuit

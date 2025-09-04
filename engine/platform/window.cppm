@@ -28,10 +28,19 @@ namespace Nuit
 
 		~Window() = default;
 
+		/**
+		 * @brief Initialize window with the specified GL version for GLFW to use.
+		 *
+		 * @param majorVersion Target OpenGL major version. Default is 4.
+		 * @param minorVersion Target OpenGL minor version. Default is 1.
+		 */
 		void init(int majorVersion = 4, int minorVersion = 1);
 
 		void process() const;
 
+		/**
+		 * @brief Clears the window and buffer bits.
+		 */
 		static void clear();
 
 		void set_done(bool done);

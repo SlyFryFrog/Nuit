@@ -6,8 +6,8 @@ in vec3 Normal;
 in vec2 TexCoord;
 
 uniform vec3 uLightPos;
+uniform vec3 uKd;   // Fallback diffuse color
 uniform sampler2D uDiffuseTex;
-uniform vec3 uKd;   // fallback diffuse color
 
 void main()
 {

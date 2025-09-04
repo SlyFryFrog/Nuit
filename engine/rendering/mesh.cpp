@@ -8,32 +8,20 @@ module;
 #include <iostream>
 #include <optional>
 #include <ostream>
+#include <ranges>
 #include <sstream>
 #include <unordered_map>
 #include <vector>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 module nuit;
 
 namespace Nuit
 {
-	Mesh::~Mesh()
+	bool MeshLoader::load(const std::string& filename)
 	{
-		if (m_vao != 0)
-		{
-			glDeleteVertexArrays(1, &m_vao);
-		}
-		if (m_vbo != 0)
-		{
-			glDeleteBuffers(1, &m_vbo);
-		}
-		if (m_ebo != 0)
-		{
-			glDeleteBuffers(1, &m_ebo);
-		}
-	}
-
-	bool Mesh::load(const std::string& filename)
-	{
-		reset_buffers();
+		reset();
 
 		if (filename.ends_with(".obj"))
 		{
@@ -41,55 +29,93 @@ namespace Nuit
 		}
 		else
 		{
+			Assimp::Importer importer;
+			const aiScene* scene = importer.ReadFile(filename,
+				aiProcess_Triangulate |
+				aiProcess_GenNormals |
+				aiProcess_JoinIdenticalVertices);
+
+
+			if (!scene || !scene->HasMeshes()) {
+				std::println(std::cerr, "Failed to load OBJ: {}", filename);
+				return false;
+			}
+
+			m_meshes.reserve(scene->mNumMeshes);
+			for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
+				const aiMesh* mesh = scene->mMeshes[i];
+				Mesh m;
+				m.MaterialIndex = mesh->mMaterialIndex;
+
+				m.Vertices.reserve(mesh->mNumVertices);
+				for (unsigned int v = 0; v < mesh->mNumVertices; ++v) {
+					Vertex vert;
+					vert.Position = { mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z };
+					vert.Normal = mesh->HasNormals() ? glm::vec3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z) : glm::vec3(0.f);
+					m.Vertices.push_back(vert);
+				}
+
+				m.Indices.reserve(mesh->mNumFaces * 3);
+				for (unsigned int f = 0; f < mesh->mNumFaces; ++f) {
+					const aiFace& face = mesh->mFaces[f];
+					for (unsigned int j = 0; j < face.mNumIndices; ++j)
+						m.Indices.push_back(face.mIndices[j]);
+				}
+
+				m_meshes.push_back(m);
+			}
+
 			std::println(std::cerr, "Unsupported file type: {}", filename);
 			return false;
 		}
 	}
 
-	void Mesh::draw(const GLShaderProgram& shader) const
+	void MeshLoader::draw(const GLShaderProgram& shader) const
 	{
-		if (m_material)
+		for (auto& mesh : m_meshes)
 		{
-			// If material textures were loaded correctly, we set the sampler2D id to the textureID
-			if (m_material->diffuseTex != 0)
+			if (mesh.Material)
 			{
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, m_material->diffuseTex);
-				shader.set_uniform("uDiffuseTex", 0);
-			}
-			else
-			{
-				// Fallback color
-				shader.set_uniform("uKd", m_material->Kd);
+				// If material textures were loaded correctly, we set the sampler2D id to the textureID
+				if (mesh.Material->diffuseTex != 0)
+				{
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, mesh.Material->diffuseTex);
+					shader.set_uniform("uDiffuseTex", 0);
+				}
+				else
+				{
+					// Fallback color
+					shader.set_uniform("uKd", mesh.Material->Kd);
+				}
+
+				if (mesh.Material->ambientTex != 0)
+				{
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, mesh.Material->ambientTex);
+					shader.set_uniform("uAmbientTex", 1);
+				}
+				else
+				{
+					// Fallback color
+					shader.set_uniform("uKa", mesh.Material->Ka);
+				}
+
+				// Set all other material-specific uniforms
+				shader.set_uniform("uKs", mesh.Material->Ks);
+				shader.set_uniform("uKe", mesh.Material->Ke);
+				shader.set_uniform("uNs", mesh.Material->Ns);
+				shader.set_uniform("uD", mesh.Material->d);
+				shader.set_uniform("uIllum", mesh.Material->illum);
 			}
 
-			if (m_material->ambientTex != 0)
-			{
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, m_material->ambientTex);
-				shader.set_uniform("uAmbientTex", 1);
-			}
-			else
-			{
-				// Fallback color
-				shader.set_uniform("uKa", m_material->Ka);
-			}
-
-			// Set all other material-specific uniforms
-			shader.set_uniform("uKs", m_material->Ks);
-			shader.set_uniform("uKe", m_material->Ke);
-			shader.set_uniform("uNs", m_material->Ns);
-			shader.set_uniform("uD", m_material->d);
-			shader.set_uniform("uIllum", m_material->illum);
+			glBindVertexArray(mesh.m_vao);
+			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.Indices.size()), GL_UNSIGNED_INT,
+						   nullptr);
 		}
-
-		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT,
-					   nullptr);
-		glBindVertexArray(0);
 	}
 
-	bool Mesh::load_obj(const std::string& filename)
+	bool MeshLoader::load_obj(const std::string& filename)
 	{
 		std::ifstream file(filename);
 
@@ -207,13 +233,13 @@ namespace Nuit
 						{
 							// Index where the vertex is stored
 							uniqueVertices[triangleVertices[j]] = static_cast<uint32_t>(
-								m_vertices.size());
+								m_activeMesh->Vertices.size());
 
 							// Push data afterward so we don't need to do size() - 1
-							m_vertices.push_back(triangleVertices[j]);
+							m_activeMesh->Vertices.push_back(triangleVertices[j]);
 						}
 
-						m_indices.push_back(uniqueVertices[triangleVertices[j]]);
+						m_activeMesh->Indices.push_back(uniqueVertices[triangleVertices[j]]);
 					}
 				}
 			}
@@ -222,79 +248,36 @@ namespace Nuit
 				std::string prefix = filename.substr(0, filename.find_last_of('/')) + "/";
 				iss >> token;
 
-				if (auto mat = load_mtllib(prefix + token); mat.has_value())
-				{
-					m_material = std::make_shared<Material>(mat.value());
-				}
+				load_mtllib(prefix + token);
 			}
 			else if (token == "usemtl")
 			{
-				// Do nothing for now as we don't support more than 1 material
+				std::string matName;
+				iss >> matName;
+
+				// Start a new mesh for this material
+				m_meshes.push_back(Mesh{});
+				m_activeMesh = &m_meshes.back();
+				m_activeMesh->Material = m_materials[matName];
 			}
 		}
 
-
-		// Normalize tangents and bitangents
-		for (auto& v : m_vertices)
-		{
-			v.Tangent = glm::normalize(v.Tangent);
-			v.Bitangent = glm::normalize(v.Bitangent);
-		}
-
-		glGenVertexArrays(1, &m_vao);
-		glBindVertexArray(m_vao);
-		glGenBuffers(1, &m_vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), m_vertices.data(),
-					 GL_STATIC_DRAW);
-
-		glGenBuffers(1, &m_ebo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(uint32_t), m_indices.data(),
-					 GL_STATIC_DRAW);
-
-		// Position
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-							  reinterpret_cast<void*>(offsetof(Vertex, Position)));
-		glEnableVertexAttribArray(0);
-
-		// Normal
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-							  reinterpret_cast<void*>(offsetof(Vertex, Normal)));
-		glEnableVertexAttribArray(1);
-
-		// TexCoords
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-							  reinterpret_cast<void*>(offsetof(Vertex, TexCoords)));
-		glEnableVertexAttribArray(2);
-
-		// Tangent
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-							  reinterpret_cast<void*>(offsetof(Vertex, Tangent)));
-		glEnableVertexAttribArray(3);
-
-		// Bitangent
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-							  reinterpret_cast<void*>(offsetof(Vertex, Bitangent)));
-		glEnableVertexAttribArray(4);
-
-		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		set_attributes();
 
 		return true;
 	}
 
-	std::optional<Material> Mesh::load_mtllib(const std::string& filename)
+	void MeshLoader::load_mtllib(const std::string& filename)
 	{
-		Material material{};
 		std::ifstream file(filename);
 
 		if (!file.is_open())
 		{
 			std::println(std::cerr, "Failed to open MTL file: {}", filename);
-			return std::nullopt;
+			return;
 		}
+
+		std::shared_ptr<Material> material;
 
 		std::string line;
 		while (std::getline(file, line))
@@ -305,95 +288,149 @@ namespace Nuit
 
 			if (token == "newmtl")
 			{
-				iss >> material.name;
+				if (material)
+					m_materials[material->name] = material;
+
+				material = std::make_shared<Material>();
+
+				iss >> material->name;
 			}
 			else if (token == "Ns")
 			{
-				iss >> material.Ns;
+				iss >> material->Ns;
 			}
 			else if (token == "d")
 			{
-				iss >> material.d;
+				iss >> material->d;
 			}
 			else if (token == "Tr")
 			{
 				// If Tr is set, we override d since they are the inverse of each other
 				float tr;
 				iss >> tr;
-				material.d = 1.0f - tr;
+				material->d = 1.0f - tr;
 			}
 			else if (token == "Ka")
 			{
-				iss >> material.Ka.r >> material.Ka.g >> material.Ka.b;
+				iss >> material->Ka.r >> material->Ka.g >> material->Ka.b;
 			}
 			else if (token == "Kd")
 			{
-				iss >> material.Kd.r >> material.Kd.g >> material.Kd.b;
+				iss >> material->Kd.r >> material->Kd.g >> material->Kd.b;
 			}
 			else if (token == "Ks")
 			{
-				iss >> material.Ks.r >> material.Ks.g >> material.Ks.b;
+				iss >> material->Ks.r >> material->Ks.g >> material->Ks.b;
 			}
 			else if (token == "Ke")
 			{
-				iss >> material.Ke.r >> material.Ke.g >> material.Ke.b;
+				iss >> material->Ke.r >> material->Ke.g >> material->Ke.b;
 			}
 			else if (token == "illum")
 			{
-				iss >> material.illum;
+				iss >> material->illum;
 			}
 			else if (token == "map_Ka")
 			{
 				std::string tex;
 				iss >> tex;
-				material.map_Ka = tex;
+				material->map_Ka = tex;
 			}
 			else if (token == "map_Kd")
 			{
 				std::string tex;
 				iss >> tex;
-				material.map_Kd = tex;
+				material->map_Kd = tex;
 			}
 		}
+
+		m_materials[material->name] = material;
 
 		// Set prefix to use the same relative path as the .obj file
 		std::string prefix = filename.substr(0, filename.find_last_of('/')) + "/";
 
-		// Attempt to load textures, fallback to programmatically generated texture
-		if (material.map_Kd.has_value())
+		for (auto& mat : m_materials | std::views::values)
 		{
-			material.diffuseTex = load_texture(prefix + material.map_Kd.value());
-		}
-		else
-		{
-			material.diffuseTex = load_missing_texture();
-		}
+			// Attempt to load textures, fallback to programmatically generated texture
+			if (mat->map_Kd.has_value())
+			{
+				mat->diffuseTex = load_texture(prefix + mat->map_Kd.value());
+			}
+			else
+			{
+				mat->diffuseTex = load_missing_texture();
+			}
 
-		if (material.map_Ka.has_value())
-		{
-			material.ambientTex = load_texture(prefix + material.map_Ka.value());
+			if (mat->map_Ka.has_value())
+			{
+				mat->ambientTex = load_texture(prefix + mat->map_Ka.value());
+			}
+			else
+			{
+				mat->ambientTex = load_missing_texture();
+			}
 		}
-		else
-		{
-			material.ambientTex = load_missing_texture();
-		}
-
-		return material;
 	}
 
-	void Mesh::reset_buffers() const
+	void MeshLoader::reset()
 	{
-		if (m_vao != 0)
+		m_meshes.clear();
+		m_meshes.shrink_to_fit();
+		m_activeMesh = nullptr;
+		m_materials.clear();
+	}
+
+	void MeshLoader::set_attributes()
+	{
+		for (auto& mesh : m_meshes)
 		{
-			glDeleteVertexArrays(1, &m_vao);
-		}
-		if (m_vbo != 0)
-		{
-			glDeleteBuffers(1, &m_vbo);
-		}
-		if (m_ebo != 0)
-		{
-			glDeleteBuffers(1, &m_ebo);
+			// Normalize tangents and bitangents
+			for (auto& v : mesh.Vertices)
+			{
+				v.Tangent = glm::normalize(v.Tangent);
+				v.Bitangent = glm::normalize(v.Bitangent);
+			}
+
+			glGenVertexArrays(1, &mesh.m_vao);
+			glBindVertexArray(mesh.m_vao);
+			glGenBuffers(1, &mesh.m_vbo);
+			glBindBuffer(GL_ARRAY_BUFFER, mesh.m_vbo);
+			glBufferData(GL_ARRAY_BUFFER, mesh.Vertices.size() * sizeof(Vertex), mesh.Vertices.data(),
+						 GL_STATIC_DRAW);
+
+			glGenBuffers(1, &mesh.m_ebo);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.m_ebo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.Indices.size() * sizeof(uint32_t), mesh.Indices.data(),
+						 GL_STATIC_DRAW);
+
+			// Position
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+								  reinterpret_cast<void*>(offsetof(Vertex, Position)));
+			glEnableVertexAttribArray(0);
+
+			// Normal
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+								  reinterpret_cast<void*>(offsetof(Vertex, Normal)));
+			glEnableVertexAttribArray(1);
+
+			// TexCoords
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+								  reinterpret_cast<void*>(offsetof(Vertex, TexCoords)));
+			glEnableVertexAttribArray(2);
+
+			// Tangent
+			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+								  reinterpret_cast<void*>(offsetof(Vertex, Tangent)));
+			glEnableVertexAttribArray(3);
+
+			// Bitangent
+			glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+								  reinterpret_cast<void*>(offsetof(Vertex, Bitangent)));
+			glEnableVertexAttribArray(4);
+
+			glBindVertexArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 	}
 } // namespace Nuit

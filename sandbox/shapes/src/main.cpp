@@ -6,7 +6,7 @@ int main()
 {
 	Window window("Shapes", 600, 600);
 	window.init();
-	GLRenderer::_init();	// Before calling GL-related code, we need to initiate the renderer
+	GLRenderer::init();	// Before calling GL-related code, we need to initiate the renderer
 
 	GLShaderProgram shader{};
 	shader.create();

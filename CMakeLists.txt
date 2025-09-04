@@ -30,6 +30,7 @@ find_package(glm CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(GLEW CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(assimp REQUIRED)
 
 add_library(stb_image SHARED ${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb_image.cpp)
 
@@ -57,6 +58,7 @@ target_link_libraries(${PROJECT_NAME}
         glfw
         OpenGL::GL
         GLEW::GLEW
+        assimp::assimp
         stb_image
 )
 

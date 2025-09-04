@@ -5,7 +5,7 @@ module nuit;
 
 namespace Nuit
 {
-	void GLRenderer::_init()
+	void GLRenderer::init()
 	{
 		glewExperimental = GL_TRUE;
 
@@ -39,7 +39,7 @@ namespace Nuit
 		}
 	}
 
-	void GLRenderer::enable_depth_testing(bool enable)
+	void GLRenderer::enable_depth_testing(const bool enable)
 	{
 		if (enable)
 		{

@@ -23,4 +23,19 @@ namespace Nuit
 	 * @brief Current working directory where the executable is located. Is determined at runtime.
 	 */
 	export const inline std::string WorkingDirectory = get_working_directory();
+
+
+	export struct StringHasher
+	{
+		std::size_t operator()(const std::string& string) const
+		{
+			size_t hash = 0;
+			for (const auto& c : string)
+			{
+				hash = hash * 31 + c;
+			}
+
+			return hash;
+		}
+	};
 }

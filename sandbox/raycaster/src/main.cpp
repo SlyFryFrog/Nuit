@@ -35,7 +35,7 @@ int main()
 {
 	std::filesystem::current_path(WorkingDirectory);
 	window->init();
-	GLRenderer::_init();
+	GLRenderer::init();
 
 	map = Map(20, 20, window, rays);
 

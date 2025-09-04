@@ -20,9 +20,14 @@ namespace Nuit
 		GLuint m_program;
 
 	public:
-		explicit GLShaderProgram() = default;
+		GLShaderProgram() = default;
 		~GLShaderProgram();
 
+		/**
+		 * @brief Returns the OpenGL ID of this shader program.
+		 *
+		 * @return The GLuint representing the program object.
+		 */
 		[[nodiscard]] GLuint id() const;
 
 		/**
@@ -30,14 +35,29 @@ namespace Nuit
 		 */
 		void create();
 
+		/**
+		 * @brief Sets instance as the active shader.
+		 */
 		void bind() const;
 
+		/**
+		 * Unbinds the active shader.
+		 */
 		static void unbind();
 
+		/**
+		 * @brief If you manually created a shader, you can link it to the program using this
+		 * method.
+		 *
+		 * @param shader ID to shader instance.
+		 */
 		void attach_shader(GLuint shader) const;
 
 		void compile_and_attach(const std::string& file, GLenum type) const;
 
+		/**
+		 * Links all attached shaders to the shader program.
+		 */
 		void link() const;
 
 		[[nodiscard]] GLint get_uniform_location(const std::string& name) const;
@@ -125,6 +145,16 @@ namespace Nuit
 		void set_uniform(const std::string& name, const glm::mat4& value) const
 		{
 			glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(value));
+		}
+
+		void set_uniform(const std::string& name, const glm::mat3& value) const
+		{
+			glUniformMatrix3fv(get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(value));
+		}
+
+		void set_uniform(const std::string& name, const glm::mat2& value) const
+		{
+			glUniformMatrix2fv(get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(value));
 		}
 	};
 } // namespace Nuit

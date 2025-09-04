@@ -17,7 +17,7 @@ void main()
     FragPos = vec3(uModel * vec4(aPos, 1.0));
 
     // Remove translation components by converting to mat3
-    // Then converto Model Normal to World Normal
+    // Then convert Model Normal to World Normal
     Normal = mat3(transpose(inverse(uModel))) * aNormal;
 
     // Convert from World Space to Clip Space

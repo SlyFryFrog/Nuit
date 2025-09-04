@@ -10,15 +10,16 @@ using namespace Nuit;
 void process_input();
 
 Window window("Meshes", 600, 600);
+MeshLoader mesh{};
+MeshLoader mesh2{};
 
 int main()
 {
 	std::filesystem::current_path(WorkingDirectory);
 	window.init();
-	GLRenderer::_init();	// Before calling GL-related code, we need to initiate the renderer
+	GLRenderer::init();	// Before calling GL-related code, we need to initiate the renderer
 
 	GLRenderer::enable_depth_testing(true);
-	GLRenderer::set_polygon_mode(FILL);
 
 	GLShaderProgram shader{};
 	shader.create();
@@ -26,8 +27,8 @@ int main()
 	shader.compile_and_attach("shaders/basic_tex.frag", FRAGMENT);
 	shader.link();
 
-	Mesh mesh{};
-	mesh.load("assets/banjo_frog.obj");
+	mesh.load("assets/banjo_frog/banjo_frog.obj");
+	mesh2.load("assets/low_poly_tree/Lowpoly_tree_sample.obj");
 
 	Timer timer;
 	timer.start();
@@ -43,7 +44,7 @@ int main()
 		angle += 15 * delta;
 
 		// Move the frog backwards
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -15.0f));
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -5.0f, -15.0f));
 
 		// First, rotate the model to make it sit upright
 		// Second, make the model spin
@@ -60,6 +61,10 @@ int main()
 		shader.set_uniform("uLightPos", glm::vec3(15.0f, 15.0f, -15.0f));
 
 		mesh.draw(shader);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -5.0f, -45.0f));
+		shader.set_uniform("uModel", model);
+		mesh2.draw(shader);
 
 		window.process();
 	}

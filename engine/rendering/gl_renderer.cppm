@@ -17,7 +17,7 @@ namespace Nuit
 
 		~GLRenderer() = default;
 
-		static void _init();
+		static void init();
 
 		static void set_polygon_mode(PolygonMode mode);
 
