@@ -67,8 +67,8 @@ namespace Nuit
 		{
 			for (int x = 0; x < width; ++x)
 			{
-				const int index = (y * width + x) * 3;		// Shift to start position
-				const bool isPurple = (x - y) % 2 == 0; // Purple for every 8x8
+				const int index = (y * width + x) * 3;
+				const bool isPurple = (x - y) % 2 == 0;
 				pixels[index + 0] = isPurple ? 255 : 0;
 				pixels[index + 1] = 0;
 				pixels[index + 2] = isPurple ? 255 : 0;

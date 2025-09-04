@@ -29,45 +29,46 @@ namespace Nuit
 		}
 		else
 		{
-			Assimp::Importer importer;
-			const aiScene* scene = importer.ReadFile(filename,
-				aiProcess_Triangulate |
-				aiProcess_GenNormals |
-				aiProcess_JoinIdenticalVertices);
-
-
-			if (!scene || !scene->HasMeshes()) {
-				std::println(std::cerr, "Failed to load OBJ: {}", filename);
-				return false;
-			}
-
-			m_meshes.reserve(scene->mNumMeshes);
-			for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
-				const aiMesh* mesh = scene->mMeshes[i];
-				Mesh m;
-				m.MaterialIndex = mesh->mMaterialIndex;
-
-				m.Vertices.reserve(mesh->mNumVertices);
-				for (unsigned int v = 0; v < mesh->mNumVertices; ++v) {
-					Vertex vert;
-					vert.Position = { mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z };
-					vert.Normal = mesh->HasNormals() ? glm::vec3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z) : glm::vec3(0.f);
-					m.Vertices.push_back(vert);
-				}
-
-				m.Indices.reserve(mesh->mNumFaces * 3);
-				for (unsigned int f = 0; f < mesh->mNumFaces; ++f) {
-					const aiFace& face = mesh->mFaces[f];
-					for (unsigned int j = 0; j < face.mNumIndices; ++j)
-						m.Indices.push_back(face.mIndices[j]);
-				}
-
-				m_meshes.push_back(m);
-			}
-
-			std::println(std::cerr, "Unsupported file type: {}", filename);
-			return false;
+			// Assimp::Importer importer;
+			// const aiScene* scene = importer.ReadFile(filename,
+			// 	aiProcess_Triangulate |
+			// 	aiProcess_GenNormals |
+			// 	aiProcess_JoinIdenticalVertices);
+			//
+			//
+			// if (!scene || !scene->HasMeshes()) {
+			// 	std::println(std::cerr, "Failed to load OBJ: {}", filename);
+			// 	return false;
+			// }
+			//
+			// m_meshes.reserve(scene->mNumMeshes);
+			// for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
+			// 	const aiMesh* mesh = scene->mMeshes[i];
+			// 	Mesh m;
+			// 	m.MaterialIndex = mesh->mMaterialIndex;
+			//
+			// 	m.Vertices.reserve(mesh->mNumVertices);
+			// 	for (unsigned int v = 0; v < mesh->mNumVertices; ++v) {
+			// 		Vertex vert;
+			// 		vert.Position = { mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z };
+			// 		vert.Normal = mesh->HasNormals() ? glm::vec3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z) : glm::vec3(0.f);
+			// 		m.Vertices.push_back(vert);
+			// 	}
+			//
+			// 	m.Indices.reserve(mesh->mNumFaces * 3);
+			// 	for (unsigned int f = 0; f < mesh->mNumFaces; ++f) {
+			// 		const aiFace& face = mesh->mFaces[f];
+			// 		for (unsigned int j = 0; j < face.mNumIndices; ++j)
+			// 			m.Indices.push_back(face.mIndices[j]);
+			// 	}
+			//
+			// 	m_meshes.push_back(m);
+			// }
+			//
+			// std::println(std::cerr, "Unsupported file type: {}", filename);
+			// return false;
 		}
+		return false;
 	}
 
 	void MeshLoader::draw(const GLShaderProgram& shader) const

@@ -13,7 +13,6 @@ namespace Nuit
 	 */
 	export GLint get_image_format(int channelCount);
 
-
 	/**
 	 * @brief Loads an image for use in OpenGL.
 	 *
@@ -30,5 +29,5 @@ namespace Nuit
 	 * @param height Height of the texture being generated.
 	 * @return GL Texture ID.
 	 */
-	export GLuint load_missing_texture(int width = 64, int height = 64);
+	export GLuint load_missing_texture(int width = 32, int height = 32);
 } // namespace Nuit
