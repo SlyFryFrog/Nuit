@@ -16,3 +16,5 @@ d 1
 illum 1
 Ka 0 0 0
 Ks 0 0 0
+map_Ka i_dont_exist.jpg
+map_Kd i_dont_exist.jpg

@@ -1,4 +1,5 @@
 module;
+#include <vector>
 export module nuit:object;
 
 import :gl_shader;
@@ -7,6 +8,9 @@ namespace Nuit
 {
 	export class Object
 	{
+	protected:
+		std::vector<Object*> m_children;
+
 	public:
 		virtual ~Object() = default;
 

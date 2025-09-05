@@ -58,9 +58,11 @@ void Player::_process(const double delta)
 
 void Player::_draw(const GLShaderProgram& shader)
 {
-	const glm::mat4 model = glm::translate(glm::mat4(1.0f),
-										   glm::vec3{Position.x, Position.z, 0.0f}) *
-		glm::scale(glm::mat4(1.0f), Scale);
+	// clang-format off
+	const glm::mat4 model = glm::translate(
+		glm::mat4(1.0f),
+		glm::vec3{Position.x, Position.z, 0.0f}) * glm::scale(glm::mat4(1.0f), Scale);
+	// clang-format on
 
 	shader.bind();
 	shader.set_uniform("uModel", model);
@@ -74,7 +76,6 @@ void Player::move_and_slide(const glm::vec3 movement)
 {
 	const float newX = Position.x + movement.x;
 	const float newZ = Position.z + movement.z;
-	const int mapX = std::floor(Position.x + movement.x);
 	const int mapY = std::floor(Position.z + movement.z);
 
 	if (newX >= 0 && newX < generatedMap[mapY].size() &&

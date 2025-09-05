@@ -1,5 +1,6 @@
 export module nuit;
 
+export import :camera_3d;
 export import :circle;
 export import :file;
 export import :gl_renderer;
@@ -11,6 +12,7 @@ export import :input_manager;
 export import :input_map;
 export import :math;
 export import :mesh;
+export import :node_3d;
 export import :object;
 export import :ray_2d;
 export import :shapes;

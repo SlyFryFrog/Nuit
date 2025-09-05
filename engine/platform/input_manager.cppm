@@ -42,6 +42,13 @@ namespace Nuit
 		static void _process_input_callback(GLFWwindow* window, int key, int scancode, int action,
 											int mods);
 
+		/**
+		 * @brief Internally called callback function for when mouse movement occurs.
+		 *
+		 * @param window Window instance calling callback.
+		 * @param xposIn Mouse in position X.
+		 * @param yposIn Mouse in position Y.
+		 */
 		static void _process_mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 
 		/**
@@ -66,8 +73,10 @@ namespace Nuit
 		 * keys.
 		 */
 		static bool is_ordered_pressed(const std::initializer_list<Key>& keys);
-
 		static bool is_ordered_pressed(const std::vector<Key>& keys);
+
+		static bool is_ordered_just_pressed(const std::initializer_list<Key>& keys);
+		static bool is_ordered_just_pressed(const std::vector<Key>& keys);
 
 		static glm::vec2 get_mouse_position()
 		{

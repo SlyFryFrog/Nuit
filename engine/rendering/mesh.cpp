@@ -1,5 +1,8 @@
 module;
 #include <GL/glew.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 #include <fstream>
 #include <glm/detail/func_geometric.inl>
 #include <glm/vec2.hpp>
@@ -12,9 +15,6 @@ module;
 #include <sstream>
 #include <unordered_map>
 #include <vector>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 module nuit;
 
 namespace Nuit
@@ -31,12 +31,12 @@ namespace Nuit
 		{
 			Assimp::Importer importer;
 			const aiScene* scene = importer.ReadFile(filename,
-				aiProcess_Triangulate |
-				aiProcess_GenNormals |
-				aiProcess_JoinIdenticalVertices);
+													 aiProcess_Triangulate | aiProcess_GenNormals |
+														 aiProcess_JoinIdenticalVertices);
 
 
-			if (!scene || !scene->HasMeshes()) {
+			if (!scene || !scene->HasMeshes())
+			{
 				std::println(std::cerr, "Failed to load file: {}", filename);
 				return false;
 			}
@@ -52,7 +52,8 @@ namespace Nuit
 		{
 			if (mesh.Material)
 			{
-				// If material textures were loaded correctly, we set the sampler2D id to the textureID
+				// If material textures were loaded correctly, we set the sampler2D id to the
+				// textureID
 				glActiveTexture(GL_TEXTURE0);
 				if (mesh.Material->diffuseTex != 0)
 				{
@@ -211,8 +212,10 @@ namespace Nuit
 						// Deduplicate vertices
 						if (!uniqueVertices.contains(triangleVertices[j]))
 						{
-							triangleVertices[j].Tangent = glm::normalize(triangleVertices[j].Tangent);
-							triangleVertices[j].Bitangent = glm::normalize(triangleVertices[j].Bitangent);
+							triangleVertices[j].Tangent = glm::normalize(
+								triangleVertices[j].Tangent);
+							triangleVertices[j].Bitangent = glm::normalize(
+								triangleVertices[j].Bitangent);
 
 							// Index where the vertex is stored
 							uniqueVertices[triangleVertices[j]] = static_cast<uint32_t>(
@@ -272,7 +275,9 @@ namespace Nuit
 			if (token == "newmtl")
 			{
 				if (material)
+				{
 					m_materials[material->name] = material;
+				}
 
 				material = std::make_shared<Material>();
 
@@ -373,13 +378,13 @@ namespace Nuit
 			glBindVertexArray(mesh.m_vao);
 			glGenBuffers(1, &mesh.m_vbo);
 			glBindBuffer(GL_ARRAY_BUFFER, mesh.m_vbo);
-			glBufferData(GL_ARRAY_BUFFER, mesh.Vertices.size() * sizeof(Vertex), mesh.Vertices.data(),
-						 GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, mesh.Vertices.size() * sizeof(Vertex),
+						 mesh.Vertices.data(), GL_STATIC_DRAW);
 
 			glGenBuffers(1, &mesh.m_ebo);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.m_ebo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.Indices.size() * sizeof(uint32_t), mesh.Indices.data(),
-						 GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.Indices.size() * sizeof(uint32_t),
+						 mesh.Indices.data(), GL_STATIC_DRAW);
 
 			// Position
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),

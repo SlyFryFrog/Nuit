@@ -3,6 +3,7 @@ module;
 #include <initializer_list>
 #include <map>
 #include <memory>
+#include <print>
 #include <queue>
 module nuit;
 
@@ -194,6 +195,21 @@ namespace Nuit
 		return false; // The recent queue didn't contain the full sequence of presses
 	}
 
+	bool InputManager::is_ordered_just_pressed(const std::initializer_list<Key>& keys)
+	{
+		return is_ordered_just_pressed(std::vector(keys));
+	}
+
+	bool InputManager::is_ordered_just_pressed(const std::vector<Key>& keys)
+	{
+		// Last key must just have been pressed for this to be valid
+		if (!is_just_pressed(keys.back()))
+		{
+			return false;
+		}
+
+		return is_ordered_pressed(keys);
+	}
 
 	void InputManager::clear_recent_queue()
 	{

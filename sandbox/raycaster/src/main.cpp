@@ -3,7 +3,6 @@
 #include <glm/ext/matrix_projection.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
-#include <iostream>
 #include <print>
 #include <thread>
 
@@ -25,6 +24,7 @@ Map map;
 constexpr auto CellSize = glm::vec2{20.0f, 20.0f};
 float angle;
 
+void reload_shaders();
 
 void draw_left(const GLShaderProgram& shader);
 void draw_right(const GLShaderProgram& shader);
@@ -65,21 +65,11 @@ int main()
 
 		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_Q}))
 		{
-			break;
+			window->set_done(true);
 		}
 		if (InputManager::is_just_pressed(KEY_R))
 		{
-			std::println("Reloading shaders...");
-			shader_2d.create();
-			shader_2d.compile_and_attach("shaders/2d/vertex.vert", VERTEX);
-			shader_2d.compile_and_attach("shaders/2d/fragment.frag", FRAGMENT);
-			shader_2d.link();
-
-			shader_3d.create();
-			shader_3d.compile_and_attach("shaders/3d/vertex.vert", VERTEX);
-			shader_3d.compile_and_attach("shaders/3d/fragment.frag", FRAGMENT);
-			shader_3d.link();
-			std::println("Finished reloading shaders");
+			reload_shaders();
 		}
 
 		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_L}))
@@ -114,7 +104,6 @@ int main()
 			angle -= 2 * PI;
 		}
 
-
 		player._process(delta);
 
 		rate = FOV / (static_cast<float>(window->get_frame_buffer_width() / 2)); // Size of viewport
@@ -128,6 +117,21 @@ int main()
 	}
 
 	return 0;
+}
+
+void reload_shaders()
+{
+	std::println("Reloading shaders...");
+	shader_2d.create();
+	shader_2d.compile_and_attach("shaders/2d/vertex.vert", VERTEX);
+	shader_2d.compile_and_attach("shaders/2d/fragment.frag", FRAGMENT);
+	shader_2d.link();
+
+	shader_3d.create();
+	shader_3d.compile_and_attach("shaders/3d/vertex.vert", VERTEX);
+	shader_3d.compile_and_attach("shaders/3d/fragment.frag", FRAGMENT);
+	shader_3d.link();
+	std::println("Finished reloading shaders");
 }
 
 void draw_left(const GLShaderProgram& shader)
