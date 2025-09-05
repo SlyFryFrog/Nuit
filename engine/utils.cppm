@@ -24,7 +24,6 @@ namespace Nuit
 	 */
 	export const inline std::string WorkingDirectory = get_working_directory();
 
-
 	export struct StringHasher
 	{
 		std::size_t operator()(const std::string& string) const

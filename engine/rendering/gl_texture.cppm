@@ -30,4 +30,8 @@ namespace Nuit
 	 * @return GL Texture ID.
 	 */
 	export GLuint load_missing_texture(int width = 32, int height = 32);
+
+	export void init_dummy_texture();
+
+	export GLuint DummyTextureID = 0;
 } // namespace Nuit

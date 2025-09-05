@@ -40,8 +40,8 @@ namespace Nuit
 		float d = 1.0f;	  // Opacity
 		int illum = 2;	  // Illumination model
 
-		std::optional<std::string> map_Ka; // Ambient texture
-		std::optional<std::string> map_Kd; // Diffuse texture
+		std::optional<std::string> map_Ka{std::nullopt}; // Ambient texture
+		std::optional<std::string> map_Kd{std::nullopt}; // Diffuse texture
 
 		// OpenGL handles
 		GLuint diffuseTex = 0;

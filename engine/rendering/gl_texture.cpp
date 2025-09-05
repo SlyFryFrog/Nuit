@@ -40,13 +40,16 @@ namespace Nuit
 		unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
 		if (data)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0,  get_image_format(nrChannels), width, height, 0,
+			glTexImage2D(GL_TEXTURE_2D, 0, get_image_format(nrChannels), width, height, 0,
 						 get_image_format(nrChannels), GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		else
 		{
 			std::println(std::cerr, "Failed to load texture: {}", filename);
+			glDeleteTextures(1, &texID);
+
+			return 0;
 		}
 		stbi_image_free(data);
 
@@ -82,5 +85,16 @@ namespace Nuit
 					 pixels.data());
 
 		return texID;
+	}
+
+	void init_dummy_texture()
+	{
+		glGenTextures(1, &DummyTextureID);
+		glBindTexture(GL_TEXTURE_2D, DummyTextureID);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 1, 1, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 	}
 } // namespace Nuit

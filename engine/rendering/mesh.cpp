@@ -29,44 +29,19 @@ namespace Nuit
 		}
 		else
 		{
-			// Assimp::Importer importer;
-			// const aiScene* scene = importer.ReadFile(filename,
-			// 	aiProcess_Triangulate |
-			// 	aiProcess_GenNormals |
-			// 	aiProcess_JoinIdenticalVertices);
-			//
-			//
-			// if (!scene || !scene->HasMeshes()) {
-			// 	std::println(std::cerr, "Failed to load OBJ: {}", filename);
-			// 	return false;
-			// }
-			//
-			// m_meshes.reserve(scene->mNumMeshes);
-			// for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
-			// 	const aiMesh* mesh = scene->mMeshes[i];
-			// 	Mesh m;
-			// 	m.MaterialIndex = mesh->mMaterialIndex;
-			//
-			// 	m.Vertices.reserve(mesh->mNumVertices);
-			// 	for (unsigned int v = 0; v < mesh->mNumVertices; ++v) {
-			// 		Vertex vert;
-			// 		vert.Position = { mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z };
-			// 		vert.Normal = mesh->HasNormals() ? glm::vec3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z) : glm::vec3(0.f);
-			// 		m.Vertices.push_back(vert);
-			// 	}
-			//
-			// 	m.Indices.reserve(mesh->mNumFaces * 3);
-			// 	for (unsigned int f = 0; f < mesh->mNumFaces; ++f) {
-			// 		const aiFace& face = mesh->mFaces[f];
-			// 		for (unsigned int j = 0; j < face.mNumIndices; ++j)
-			// 			m.Indices.push_back(face.mIndices[j]);
-			// 	}
-			//
-			// 	m_meshes.push_back(m);
-			// }
-			//
-			// std::println(std::cerr, "Unsupported file type: {}", filename);
-			// return false;
+			Assimp::Importer importer;
+			const aiScene* scene = importer.ReadFile(filename,
+				aiProcess_Triangulate |
+				aiProcess_GenNormals |
+				aiProcess_JoinIdenticalVertices);
+
+
+			if (!scene || !scene->HasMeshes()) {
+				std::println(std::cerr, "Failed to load file: {}", filename);
+				return false;
+			}
+
+			std::println(std::cerr, "Unsupported file type: {}", filename);
 		}
 		return false;
 	}
@@ -78,26 +53,30 @@ namespace Nuit
 			if (mesh.Material)
 			{
 				// If material textures were loaded correctly, we set the sampler2D id to the textureID
+				glActiveTexture(GL_TEXTURE0);
 				if (mesh.Material->diffuseTex != 0)
 				{
-					glActiveTexture(GL_TEXTURE0);
 					glBindTexture(GL_TEXTURE_2D, mesh.Material->diffuseTex);
 					shader.set_uniform("uDiffuseTex", 0);
 				}
 				else
 				{
+					glBindTexture(GL_TEXTURE_2D, DummyTextureID);
+
 					// Fallback color
 					shader.set_uniform("uKd", mesh.Material->Kd);
 				}
 
+				glActiveTexture(GL_TEXTURE1);
 				if (mesh.Material->ambientTex != 0)
 				{
-					glActiveTexture(GL_TEXTURE1);
 					glBindTexture(GL_TEXTURE_2D, mesh.Material->ambientTex);
 					shader.set_uniform("uAmbientTex", 1);
 				}
 				else
 				{
+					glBindTexture(GL_TEXTURE_2D, DummyTextureID);
+
 					// Fallback color
 					shader.set_uniform("uKa", mesh.Material->Ka);
 				}
@@ -232,6 +211,9 @@ namespace Nuit
 						// Deduplicate vertices
 						if (!uniqueVertices.contains(triangleVertices[j]))
 						{
+							triangleVertices[j].Tangent = glm::normalize(triangleVertices[j].Tangent);
+							triangleVertices[j].Bitangent = glm::normalize(triangleVertices[j].Bitangent);
+
 							// Index where the vertex is stored
 							uniqueVertices[triangleVertices[j]] = static_cast<uint32_t>(
 								m_activeMesh->Vertices.size());
@@ -356,19 +338,21 @@ namespace Nuit
 			if (mat->map_Kd.has_value())
 			{
 				mat->diffuseTex = load_texture(prefix + mat->map_Kd.value());
-			}
-			else
-			{
-				mat->diffuseTex = load_missing_texture();
+
+				if (mat->diffuseTex == 0)
+				{
+					mat->diffuseTex = load_missing_texture();
+				}
 			}
 
 			if (mat->map_Ka.has_value())
 			{
 				mat->ambientTex = load_texture(prefix + mat->map_Ka.value());
-			}
-			else
-			{
-				mat->ambientTex = load_missing_texture();
+
+				if (mat->ambientTex == 0)
+				{
+					mat->ambientTex = load_missing_texture();
+				}
 			}
 		}
 	}
@@ -385,13 +369,6 @@ namespace Nuit
 	{
 		for (auto& mesh : m_meshes)
 		{
-			// Normalize tangents and bitangents
-			for (auto& v : mesh.Vertices)
-			{
-				v.Tangent = glm::normalize(v.Tangent);
-				v.Bitangent = glm::normalize(v.Bitangent);
-			}
-
 			glGenVertexArrays(1, &mesh.m_vao);
 			glBindVertexArray(mesh.m_vao);
 			glGenBuffers(1, &mesh.m_vbo);

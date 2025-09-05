@@ -21,6 +21,8 @@ namespace Nuit
 		int numAttributes;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &numAttributes);
 		std::println("Maximum number of vertex attributes supported: {0}", numAttributes);
+
+		init_dummy_texture();
 	}
 
 	void GLRenderer::set_polygon_mode(const PolygonMode mode)
