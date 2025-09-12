@@ -5,6 +5,9 @@ import :input_map;
 
 namespace Nuit
 {
+	/**
+	 * @brief Stores the state of a give Key.
+	 */
 	export class InputEvent
 	{
 		Key m_key{};

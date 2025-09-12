@@ -8,13 +8,6 @@ module nuit;
 
 namespace Nuit
 {
-	/**
-	 * @brief Returns the absolute path to the running executable.
-	 *
-	 * @return Absolute path to the executable.
-	 *
-	 * @note Works on macOS and Linux. Returns an empty path on failure.
-	 */
 	std::string get_working_directory()
 	{
 		// MacOS doesn't use the pwd of the executable when launching from clicking on the

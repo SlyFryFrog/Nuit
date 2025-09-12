@@ -13,9 +13,9 @@ namespace Nuit
 	/**
 	 * @brief Returns the absolute path to the running executable.
 	 *
-	 * @return Absolute path to the executable.
-	 *
 	 * @note Works on macOS and Linux. Returns an empty path on failure.
+	 *
+	 * @return Absolute path to the executable.
 	 */
 	export std::string get_working_directory();
 

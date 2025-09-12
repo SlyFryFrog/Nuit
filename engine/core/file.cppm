@@ -9,8 +9,8 @@ namespace Nuit
 	{
 	public:
 		/**
-		 * Reads the contents of a file and returns std::optional<std::string> to check the success
-		 * of the read.
+		 * @brief Reads the contents of a file and returns std::optional<std::string> to check the
+		 * success of the read.
 		 *
 		 * @param path	Path to the file.
 		 *

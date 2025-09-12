@@ -4,6 +4,9 @@ export module nuit:timer;
 
 namespace Nuit
 {
+	/**
+	 * @brief A high-resolution timer for measuring time intervals.
+	 */
 	export class Timer
 	{
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
@@ -14,24 +17,51 @@ namespace Nuit
 		~Timer() = default;
 
 		/**
-		 * @brief Resets the timer to default state.
+		 * @brief Resets the timer to the current time.
+		 *
+		 * Sets both `m_start` and `m_prevTime` to the current time,
+		 * effectively starting or restarting the timer.
 		 */
 		void start();
 
 		/**
-		 * @brief Gets the delta time between the last delta() call and now. Updates timeframe for
-		 * preparation of next delta.
+		 * @brief Gets the time elapsed since the last call to `delta()`.
 		 *
-		 * @return Time since last delta call.
+		 * Updates `m_prevTime` to the current time, preparing for the next `delta()` call.
+		 * Use this method to measure frame time in game loops.
+		 *
+		 * @return The time (in seconds) since the last call to `delta()`.
 		 */
 		[[nodiscard]] double delta();
+
 		/**
-		 * @brief Returns the time since last delta, does not modify timeframe.
-		 * @return Time since start of timeframe.
+		 * @brief Gets the time since the last `delta()` call without updating the timer.
+		 *
+		 * Unlike `delta()`, this method does not modify `m_prevTime`.
+		 * Useful for checking the current frame time without affecting future calls.
+		 *
+		 * @return The time (in seconds) since the last `delta()` call.
 		 */
 		[[nodiscard]] double peak_delta() const;
 
+		/**
+		 * @brief Gets the total time elapsed since the timer was started or reset.
+		 *
+		 * Updates `m_prevTime` to the current time, preparing for the next `delta()` call.
+		 * Use this method to measure the total elapsed time.
+		 *
+		 * @return The total time (in seconds) since the timer was started.
+		 */
 		[[nodiscard]] double elapsed();
+
+		/**
+		 * @brief Gets the total time elapsed since the timer was started, without updating the timer.
+		 *
+		 * Unlike `elapsed()`, this method does not modify `m_prevTime`.
+		 * Useful for checking the total elapsed time without affecting future calls.
+		 *
+		 * @return The total time (in seconds) since the timer was started.
+		 */
 		[[nodiscard]] double peak_elapsed() const;
 	};
 } // namespace Nuit

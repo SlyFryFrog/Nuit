@@ -41,7 +41,7 @@ namespace Nuit
 		void bind() const;
 
 		/**
-		 * Unbinds the active shader.
+		 * @brief Unbinds the active shader.
 		 */
 		static void unbind();
 

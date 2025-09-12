@@ -13,10 +13,9 @@ namespace Nuit
 	export class GLRenderer
 	{
 	public:
-		GLRenderer() = default;
-
-		~GLRenderer() = default;
-
+		/**
+		 * @brief Before calling and GL-related functions, the GLRenderer MUST first be called.
+		 */
 		static void init();
 
 		static void set_polygon_mode(PolygonMode mode);

@@ -31,7 +31,13 @@ namespace Nuit
 	 */
 	export GLuint load_missing_texture(int width = 32, int height = 32);
 
+	/**
+	 * @brief Creates a empty, minimal texture to silence warnings.
+	 */
 	export void init_dummy_texture();
 
+	/**
+	 * @brief Set at initiation of GLRenderer.
+	 */
 	export GLuint DummyTextureID = 0;
 } // namespace Nuit

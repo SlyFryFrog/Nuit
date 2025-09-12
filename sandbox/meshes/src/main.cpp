@@ -56,7 +56,7 @@ int main()
 
 		shader.bind();
 		shader.set_uniform("uModel", model);
-		shader.set_uniform("uLightPos", glm::vec3(15.0f, 15.0f, -15.0f));
+		shader.set_uniform("uLightPos", camera.Position);
 		camera._draw(shader);
 
 		mesh.draw(shader);
@@ -64,7 +64,6 @@ int main()
 		// Note: we can change uniforms between draws - i.e. the light position
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -45.0f));
 		shader.set_uniform("uModel", model);
-		shader.set_uniform("uLightPos", glm::vec3(-15.0f, 15.0f, -15.0f));
 		mesh2.draw(shader);
 
 		window.process();

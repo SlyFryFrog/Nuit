@@ -6,7 +6,7 @@ module nuit;
 
 namespace Nuit
 {
-	void Camera3D::look_at(const glm::vec3 &point)
+	void Camera3D::look_at(const glm::vec3& point)
 	{
 		const glm::mat4 look = glm::lookAt(Position, point, m_up);
 
@@ -44,5 +44,20 @@ namespace Nuit
 	glm::vec3 Camera3D::get_up() const
 	{
 		return glm::normalize(glm::vec3(m_worldTransform[1]));
+	}
+
+	void Camera3D::rotate_pitch(const float degrees)
+	{
+		Rotation.x += degrees;
+	}
+
+	void Camera3D::rotate_yaw(const float degrees)
+	{
+		Rotation.y += degrees;
+	}
+
+	void Camera3D::rotate_roll(const float degrees)
+	{
+		Rotation.z += degrees;
 	}
 } // namespace Nuit

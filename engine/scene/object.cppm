@@ -6,6 +6,9 @@ import :gl_shader;
 
 namespace Nuit
 {
+	/**
+	 * @brief The most basic Scene type available. All Scene-related Nodes inherit from this object.
+	 */
 	export class Object
 	{
 	protected:

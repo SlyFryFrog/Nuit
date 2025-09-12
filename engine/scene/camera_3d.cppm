@@ -41,19 +41,8 @@ namespace Nuit
 		[[nodiscard]] glm::vec3 get_right() const;
 		[[nodiscard]] glm::vec3 get_up() const;
 
-		void rotate_pitch(const float degrees)
-		{
-			Rotation.x += degrees;
-		}
-
-		void rotate_yaw(const float degrees)
-		{
-			Rotation.y += degrees;
-		}
-
-		void rotate_roll(const float degrees)
-		{
-			Rotation.z += degrees;
-		}
+		void rotate_pitch(float degrees);
+		void rotate_yaw(float degrees);
+		void rotate_roll(float degrees);
 	};
 } // namespace Nuit

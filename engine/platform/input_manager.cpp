@@ -5,10 +5,16 @@ module;
 #include <memory>
 #include <print>
 #include <queue>
+#include <glm/vec2.hpp>
 module nuit;
 
 namespace Nuit
 {
+	std::map<Key, std::shared_ptr<InputEvent>> InputManager::get_events()
+	{
+		return m_events;
+	}
+
 	void InputManager::_process_input_callback(GLFWwindow* window, const int key,
 											   const int scancode, const int action, const int mods)
 	{
@@ -18,10 +24,10 @@ namespace Nuit
 			return;
 		}
 
-		const Key lysKey = static_cast<Key>(key);
+		const Key libKey = static_cast<Key>(key);
 		InputState state;
 
-		if (action == GLFW_PRESS && !m_events.contains(lysKey))
+		if (action == GLFW_PRESS && !m_events.contains(libKey))
 		{
 			state = JUST_PRESSED;
 		}
@@ -30,14 +36,14 @@ namespace Nuit
 			state = JUST_RELEASED;
 		}
 
-		const auto event = std::make_shared<InputEvent>(lysKey, state);
+		const auto event = std::make_shared<InputEvent>(libKey, state);
 
 		// Add to recent queue if just pressed
 		// Used for handling combinations of keys being pressed
 		m_recentQueue.push(event);
 
 		m_eventQueue.push(event);
-		m_events[lysKey] = event;
+		m_events[libKey] = event;
 	}
 
 	void InputManager::_process_mouse_callback(GLFWwindow* window, const double xposIn,
@@ -209,6 +215,15 @@ namespace Nuit
 		}
 
 		return is_ordered_pressed(keys);
+	}
+
+	glm::vec2 InputManager::get_mouse_position()
+	{
+		return {m_prevMouseX, m_prevMouseY};
+	}
+	glm::vec2 InputManager::get_mouse_delta()
+	{
+		return {m_deltaX, m_deltaY};
 	}
 
 	void InputManager::clear_recent_queue()

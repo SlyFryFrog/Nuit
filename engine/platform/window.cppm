@@ -1,10 +1,7 @@
 module;
 #include <GLFW/glfw3.h>
-#include <iostream>
-#include <utility>
+#include <string>
 export module nuit:window;
-
-import :input_manager;
 
 namespace Nuit
 {
@@ -53,6 +50,12 @@ namespace Nuit
 
 		[[nodiscard]] std::string get_title() const;
 
+		/**
+		 * @brief Sets the dimensions of the window.
+		 *
+		 * @param width Width of window.
+		 * @param height Height of window.
+		 */
 		void set_size(int width, int height);
 
 		[[nodiscard]] int get_width() const;
