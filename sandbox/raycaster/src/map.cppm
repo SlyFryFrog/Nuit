@@ -11,6 +11,7 @@ using namespace Nuit;
 export constexpr float WallTileSize = 1.0f; // Changes the ratio for the height of the walls
 export constexpr float FOV = 90;
 export float rate;
+export int step = 1;
 
 export inline std::vector<std::vector<int>> generatedMap;
 

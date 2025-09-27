@@ -35,6 +35,7 @@ int main()
 {
 	std::filesystem::current_path(WorkingDirectory);
 	window->init();
+	init_imgui(window->get_glfw_window());
 	GLRenderer::init();
 
 	map = Map(20, 20, window, rays);
@@ -62,6 +63,7 @@ int main()
 		Window::clear();
 		constexpr float rotationSpeed = 2.5f;
 		const double delta = timer.delta();
+		begin_imgui_frame();
 
 		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_Q}))
 		{
@@ -106,15 +108,20 @@ int main()
 
 		player._process(delta);
 
-		rate = FOV / (static_cast<float>(window->get_frame_buffer_width() / 2)); // Size of viewport
+		rate = FOV / (static_cast<float>(window->get_frame_buffer_width() / 2)) * step; // Size of viewport
 		rays->clear();
-		rays->resize(window->get_frame_buffer_width() / 2);
+		rays->resize(window->get_frame_buffer_width() / 2 / step);
 
 		draw_left(shader_2d);
 		draw_right(shader_3d);
 
+		debug_window();
+		render_imgui();
+
 		window->process();
 	}
+
+	shutdown_imgui();
 
 	return 0;
 }

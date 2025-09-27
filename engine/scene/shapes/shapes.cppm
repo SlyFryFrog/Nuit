@@ -44,7 +44,7 @@ namespace Nuit
 				glGenBuffers(1, &m_vbo);
 			}
 
-			const float vertices[6] = {
+			const float vertices[] = {
 				static_cast<float>(x), yTop,
 				static_cast<float>(x2), yBot
 			};

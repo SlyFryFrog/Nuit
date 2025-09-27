@@ -1,4 +1,3 @@
-#include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <filesystem>
@@ -22,8 +21,9 @@ int main()
 {
 	std::filesystem::current_path(WorkingDirectory);
 	window.init();
-	GLRenderer::init();	// Before calling GL-related code, we need to initiate the renderer
+    init_imgui(window.get_glfw_window(), "#version 330");
 
+	GLRenderer::init();	// Before calling GL-related code, we need to initiate the renderer
 	GLRenderer::enable_depth_testing(true);
 
 	reload_shaders();
@@ -46,6 +46,8 @@ int main()
 
 		camera._process(delta);
 
+		begin_imgui_frame();
+
 		// Move the frog backwards
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -15.0f));
 
@@ -66,8 +68,13 @@ int main()
 		shader.set_uniform("uModel", model);
 		mesh2.draw(shader);
 
+		debug_window();
+		render_imgui();
+
 		window.process();
 	}
+
+	shutdown_imgui();
 
 	return 0;
 }

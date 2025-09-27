@@ -13,6 +13,8 @@ namespace Nuit
 	 */
 	export GLint get_image_format(int channelCount);
 
+	export GLuint create_texture(int width, int height);
+
 	/**
 	 * @brief Loads an image for use in OpenGL.
 	 *
