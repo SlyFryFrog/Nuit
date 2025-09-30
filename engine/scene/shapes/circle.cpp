@@ -34,7 +34,7 @@ namespace Nuit
 		glBindVertexArray(0);
 	}
 
-	void Circle::_draw(const GLShaderProgram& shader)
+	void Circle::_draw(GLShaderProgram& shader)
 	{
 		if (m_vao == 0)
 		{

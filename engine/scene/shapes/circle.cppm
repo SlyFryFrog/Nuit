@@ -28,7 +28,7 @@ namespace Nuit
 
 		void _init() override;
 
-		void _draw(const GLShaderProgram& shader) override;
+		void _draw(GLShaderProgram& shader) override;
 
 	private:
 		void set_vertices();

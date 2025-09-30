@@ -15,7 +15,6 @@ export import :math;
 export import :mesh;
 export import :node_3d;
 export import :object;
-export import :ray_2d;
 export import :shapes;
 export import :sphere;
 export import :timer;

@@ -51,7 +51,7 @@ namespace Nuit
 		glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 	}
 
-	void GLFramebuffer::unbind() const
+	void GLFramebuffer::unbind()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}

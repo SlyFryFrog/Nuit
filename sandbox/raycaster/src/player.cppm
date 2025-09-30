@@ -26,7 +26,7 @@ public:
 
 	void _init() override;
 	void _process(double delta) override;
-	void _draw(const GLShaderProgram& shader) override;
+	void _draw(GLShaderProgram& shader) override;
 
 	void move_and_slide(glm::vec3 movement);
 };

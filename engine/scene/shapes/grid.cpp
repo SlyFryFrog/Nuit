@@ -20,7 +20,7 @@ namespace Nuit
 		}
 	}
 
-	void Grid::_draw(const GLShaderProgram& shader)
+	void Grid::_draw(GLShaderProgram& shader)
 	{
 		shader.bind();
 		// Color of gridlines
@@ -78,7 +78,7 @@ namespace Nuit
 	{
 		return m_vertices;
 	}
-	void Grid::draw_filled(const GLShaderProgram& shader, const std::vector<std::vector<int>>& map)
+	void Grid::draw_filled(GLShaderProgram& shader, const std::vector<std::vector<int>>& map)
 	{
 		const int rows = map.size();
 

@@ -46,7 +46,7 @@ namespace Nuit
 		return false;
 	}
 
-	void MeshLoader::draw(const GLShaderProgram& shader) const
+	void MeshLoader::draw(GLShaderProgram& shader) const
 	{
 		for (auto& mesh : m_meshes)
 		{
@@ -90,7 +90,7 @@ namespace Nuit
 				shader.set_uniform("uIllum", mesh.Material->illum);
 			}
 
-			glBindVertexArray(mesh.m_vao);
+			glBindVertexArray(mesh.Vao);
 			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.Indices.size()), GL_UNSIGNED_INT,
 						   nullptr);
 		}
@@ -374,15 +374,15 @@ namespace Nuit
 	{
 		for (auto& mesh : m_meshes)
 		{
-			glGenVertexArrays(1, &mesh.m_vao);
-			glBindVertexArray(mesh.m_vao);
-			glGenBuffers(1, &mesh.m_vbo);
-			glBindBuffer(GL_ARRAY_BUFFER, mesh.m_vbo);
+			glGenVertexArrays(1, &mesh.Vao);
+			glBindVertexArray(mesh.Vao);
+			glGenBuffers(1, &mesh.Vbo);
+			glBindBuffer(GL_ARRAY_BUFFER, mesh.Vbo);
 			glBufferData(GL_ARRAY_BUFFER, mesh.Vertices.size() * sizeof(Vertex),
 						 mesh.Vertices.data(), GL_STATIC_DRAW);
 
-			glGenBuffers(1, &mesh.m_ebo);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.m_ebo);
+			glGenBuffers(1, &mesh.Ibo);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.Ibo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.Indices.size() * sizeof(uint32_t),
 						 mesh.Indices.data(), GL_STATIC_DRAW);
 

@@ -56,7 +56,7 @@ void Player::_process(const double delta)
 	move_and_slide(movement);
 }
 
-void Player::_draw(const GLShaderProgram& shader)
+void Player::_draw(GLShaderProgram& shader)
 {
 	// clang-format off
 	const glm::mat4 model = glm::translate(

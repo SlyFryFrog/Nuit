@@ -96,9 +96,9 @@ namespace Nuit
 		std::vector<uint32_t> Indices;
 		std::shared_ptr<Material> Material;
 		unsigned int MaterialIndex;
-		GLuint m_vao{};
-		GLuint m_vbo{};
-		GLuint m_ebo{};
+		GLuint Vao{};
+		GLuint Vbo{};
+		GLuint Ibo{};
 	};
 
 	export class MeshLoader
@@ -115,7 +115,7 @@ namespace Nuit
 
 		bool load(const std::string& filename);
 
-		void draw(const GLShaderProgram& shader) const;
+		void draw(GLShaderProgram& shader) const;
 
 	private:
 		bool load_obj(const std::string& filename);

@@ -9,6 +9,7 @@
 import nuit;
 import player;
 import map;
+import ray_2d;
 
 using namespace Nuit;
 
@@ -26,8 +27,8 @@ float angle;
 
 void reload_shaders();
 
-void draw_left(const GLShaderProgram& shader);
-void draw_right(const GLShaderProgram& shader);
+void draw_left(GLShaderProgram& shader);
+void draw_right(GLShaderProgram& shader);
 
 glm::ivec2 get_mouse_grid_position(glm::vec4 worldPos);
 
@@ -108,9 +109,9 @@ int main()
 
 		player._process(delta);
 
-		rate = FOV / (static_cast<float>(window->get_frame_buffer_width() / 2)) * step; // Size of viewport
+		rate = FOV / (static_cast<float>(window->get_frame_buffer_width()) / 2) * Step; // Size of viewport
 		rays->clear();
-		rays->resize(window->get_frame_buffer_width() / 2 / step);
+		rays->resize(window->get_frame_buffer_width() / 2 / Step);
 
 		draw_left(shader_2d);
 		draw_right(shader_3d);
@@ -141,7 +142,7 @@ void reload_shaders()
 	std::println("Finished reloading shaders");
 }
 
-void draw_left(const GLShaderProgram& shader)
+void draw_left(GLShaderProgram& shader)
 {
 	constexpr float zoom = 10.0f;
 
@@ -244,7 +245,7 @@ void draw_left(const GLShaderProgram& shader)
 	}
 }
 
-void draw_right(const GLShaderProgram& shader)
+void draw_right(GLShaderProgram& shader)
 {
 	map.draw_perspective_view(shader);
 }

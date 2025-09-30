@@ -3,7 +3,10 @@ module;
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
+#include <unordered_map>
 export module nuit:gl_shader;
+
+import :utils;
 
 namespace Nuit
 {
@@ -17,7 +20,8 @@ namespace Nuit
 
 	export class GLShaderProgram
 	{
-		GLuint m_program;
+		GLuint m_program{0};
+		std::unordered_map<std::string, GLint, StringHasher> m_uniformsCache;
 
 	public:
 		GLShaderProgram() = default;
@@ -58,101 +62,101 @@ namespace Nuit
 		/**
 		 * Links all attached shaders to the shader program.
 		 */
-		void link() const;
+		void link();
 
-		[[nodiscard]] GLint get_uniform_location(const std::string& name) const;
+		[[nodiscard]] GLint get_uniform_location(const std::string& name);
 
-		void set_uniform(const std::string& name, const int value) const
+		void set_uniform(const std::string& name, const int value)
 		{
 			glUniform1i(get_uniform_location(name), value);
 		}
 
-		void set_uniform(const std::string& name, const glm::ivec2 value) const
+		void set_uniform(const std::string& name, const glm::ivec2 value)
 		{
 			glUniform2iv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::ivec3 value) const
+		void set_uniform(const std::string& name, const glm::ivec3 value)
 		{
 			glUniform3iv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::ivec4 value) const
+		void set_uniform(const std::string& name, const glm::ivec4 value)
 		{
 			glUniform4iv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const unsigned int value) const
+		void set_uniform(const std::string& name, const unsigned int value)
 		{
 			glUniform1ui(get_uniform_location(name), value);
 		}
 
-		void set_uniform(const std::string& name, const glm::uvec2& value) const
+		void set_uniform(const std::string& name, const glm::uvec2& value)
 		{
 			glUniform2uiv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::uvec3& value) const
+		void set_uniform(const std::string& name, const glm::uvec3& value)
 		{
 			glUniform3uiv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::uvec4& value) const
+		void set_uniform(const std::string& name, const glm::uvec4& value)
 		{
 			glUniform4uiv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const float value) const
+		void set_uniform(const std::string& name, const float value)
 		{
 			glUniform1f(get_uniform_location(name), value);
 		}
 
-		void set_uniform(const std::string& name, const glm::vec2& value) const
+		void set_uniform(const std::string& name, const glm::vec2& value)
 		{
 			glUniform2fv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::vec3& value) const
+		void set_uniform(const std::string& name, const glm::vec3& value)
 		{
 			glUniform3fv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::vec4& value) const
+		void set_uniform(const std::string& name, const glm::vec4& value)
 		{
 			glUniform4fv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const double value) const
+		void set_uniform(const std::string& name, const double value)
 		{
 			glUniform1d(get_uniform_location(name), value);
 		}
 
-		void set_uniform(const std::string& name, const glm::dvec2& value) const
+		void set_uniform(const std::string& name, const glm::dvec2& value)
 		{
 			glUniform2dv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::dvec3& value) const
+		void set_uniform(const std::string& name, const glm::dvec3& value)
 		{
 			glUniform3dv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::dvec4& value) const
+		void set_uniform(const std::string& name, const glm::dvec4& value)
 		{
 			glUniform4dv(get_uniform_location(name), 1, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::mat4& value) const
+		void set_uniform(const std::string& name, const glm::mat4& value)
 		{
 			glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::mat3& value) const
+		void set_uniform(const std::string& name, const glm::mat3& value)
 		{
 			glUniformMatrix3fv(get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(value));
 		}
 
-		void set_uniform(const std::string& name, const glm::mat2& value) const
+		void set_uniform(const std::string& name, const glm::mat2& value)
 		{
 			glUniformMatrix2fv(get_uniform_location(name), 1, GL_FALSE, glm::value_ptr(value));
 		}

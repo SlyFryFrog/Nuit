@@ -61,7 +61,7 @@ public:
 		update_transform();
 	}
 
-	void _draw(const GLShaderProgram& shader) override
+	void _draw(GLShaderProgram& shader) override
 	{
 		shader.set_uniform("uView", get_view());
 		shader.set_uniform("uProjection", get_projection());

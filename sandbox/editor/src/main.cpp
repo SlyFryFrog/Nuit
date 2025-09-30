@@ -1,47 +1,22 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
 #include <iostream>
-#include <print>
 
 import editor;
 import nuit;
 
 using namespace Nuit;
 
+Window window("Editor", 600, 600);
 GLFramebuffer framebuff;
-GLuint fbo, texture, rbo;
 int viewportWidth = 600, viewportHeight = 600;
-
-void init_framebuffer()
-{
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-	// Create a texture to render to
-	texture = create_texture(viewportWidth, viewportHeight);
-
-	// Create a renderbuffer object for depth and stencil attachment
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, viewportWidth, viewportHeight);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		std::println(std::cerr, "Framebuffer not complete!");
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
 
 int main()
 {
-	Window window("Editor", 600, 600);
 	window.init();
 	GLRenderer::init();
+
+	framebuff.create();
+	init_imgui(window.get_glfw_window());
 
 	GLShaderProgram shader{};
 	shader.create();
@@ -49,12 +24,9 @@ int main()
 	shader.compile_and_attach("shaders/basic_frag.frag", FRAGMENT);
 	shader.link();
 
-	Circle circle;
+	Circle circle{};
 	circle.Radius = 0.5f;
-	circle.Color = {1.0f, 1.0f, 0.0f, 1.0f};
-
-	framebuff.create();
-	init_imgui(window.get_glfw_window());
+	circle.Color = {0.0f, 1.0f, 0.0f, 1.0f};
 
 	while (!window.is_done())
 	{
@@ -65,7 +37,7 @@ int main()
 			Window::set_viewport(0, 0, viewportWidth, viewportHeight);
 			circle._draw(shader);
 		}
-		framebuff.unbind();
+		GLFramebuffer::unbind();
 
 		// Start ImGui frame
 		begin_imgui_frame();

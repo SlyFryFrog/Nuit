@@ -5,13 +5,14 @@ module;
 #include <vector>
 export module map;
 
+import ray_2d;
 import nuit;
 using namespace Nuit;
 
 export constexpr float WallTileSize = 1.0f; // Changes the ratio for the height of the walls
 export constexpr float FOV = 90;
+export constexpr float Step = 10;
 export float rate;
-export int step = 1;
 
 export inline std::vector<std::vector<int>> generatedMap;
 
@@ -29,9 +30,9 @@ public:
 	Map(int width, int height, const std::shared_ptr<Window>& window,
 		const std::shared_ptr<std::vector<Ray>>& rays);
 
-	void draw_grid_view(const GLShaderProgram& shader);
+	void draw_grid_view(GLShaderProgram& shader);
 
-	void draw_perspective_view(const GLShaderProgram& shader);
+	void draw_perspective_view(GLShaderProgram& shader);
 
 	void generate();
 
@@ -42,7 +43,7 @@ public:
 	void save_map(const std::string& path);
 
 private:
-	void draw_walls(const GLShaderProgram& shader);
-	void draw_floors(const GLShaderProgram& shader);
-	void draw_ceilings(const GLShaderProgram& shader);
+	void draw_walls(GLShaderProgram& shader);
+	void draw_floors(GLShaderProgram& shader);
+	void draw_ceilings(GLShaderProgram& shader);
 };

@@ -1,5 +1,6 @@
 module;
 #include <GL/glew.h>
+#include <glm/vec2.hpp>
 export module nuit:gl_framebuffer;
 
 import :gl_texture;
@@ -21,13 +22,28 @@ namespace Nuit
 		void create();
 
 		void bind() const;
-		void unbind() const;
+		static void unbind();
 
 		void update(int width, int height);
 
 		[[nodiscard]] GLuint get_texture() const
 		{
 			return m_texID;
+		}
+
+		[[nodiscard]] GLuint get_frame_buffer() const
+		{
+			return m_fbo;
+		}
+
+		[[nodiscard]] GLuint get_render_buffer() const
+		{
+			return m_rbo;
+		}
+
+		[[nodiscard]] glm::ivec2 get_size() const
+		{
+			return {m_width, m_height};
 		}
 	};
 } // namespace Nuit

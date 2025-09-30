@@ -81,7 +81,7 @@ namespace Nuit
 		glDeleteShader(shader);
 	}
 
-	void GLShaderProgram::link() const
+	void GLShaderProgram::link()
 	{
 		glLinkProgram(m_program);
 
@@ -93,10 +93,28 @@ namespace Nuit
 			glGetProgramInfoLog(m_program, sizeof(log), nullptr, log);
 			std::println(std::cerr, "Program link failed: {}", log);
 		}
+
+		// Reset uniform cache for newly created shader
+	    m_uniformsCache.clear();
 	}
 
-	GLint GLShaderProgram::get_uniform_location(const std::string& name) const
+	GLint GLShaderProgram::get_uniform_location(const std::string& name)
 	{
-		return glGetUniformLocation(m_program, name.c_str());
+		// Check if uniform location is already cached
+		if (const auto it = m_uniformsCache.find(name); it != m_uniformsCache.end())
+		{
+			return it->second;
+		}
+
+		// Save uniform to cache
+		const GLint location = glGetUniformLocation(m_program, name.c_str());
+		m_uniformsCache[name] = location;
+
+		if (location == -1)
+		{
+			std::println(std::cerr, "Uniform \"{0}\" not found!", name);
+		}
+
+		return location;
 	}
 } // namespace Nuit

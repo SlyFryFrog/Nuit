@@ -26,12 +26,12 @@ namespace Nuit
 
 		~Grid() override;
 
-		void _draw(const GLShaderProgram& shader) override;
+		void _draw(GLShaderProgram& shader) override;
 
 		void generate(const std::vector<std::vector<int>>& grid);
 
 		[[nodiscard]] const std::vector<glm::vec2>& get_vertices() const;
 
-		void draw_filled(const GLShaderProgram& shader, const std::vector<std::vector<int>>& map);
+		void draw_filled(GLShaderProgram& shader, const std::vector<std::vector<int>>& map);
 	};
 } // namespace Nuit

@@ -25,7 +25,7 @@ namespace Nuit
 		{
 		}
 
-		virtual void _draw(const GLShaderProgram& shader)
+		virtual void _draw(GLShaderProgram& shader)
 		{
 		}
 	};

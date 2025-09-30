@@ -22,11 +22,11 @@ Map::Map(int width, int height, const std::shared_ptr<Window>& window,
 {
 }
 
-void Map::draw_grid_view(const GLShaderProgram& shader)
+void Map::draw_grid_view(GLShaderProgram& shader)
 {
 }
 
-void Map::draw_perspective_view(const GLShaderProgram& shader)
+void Map::draw_perspective_view(GLShaderProgram& shader)
 {
 	m_halfWidth = m_window->get_frame_buffer_width() / 2;
 	m_fullHeight = m_window->get_frame_buffer_height();
@@ -98,10 +98,10 @@ void Map::save_map(const std::string& path)
 	File::write(path, content.str());
 }
 
-void Map::draw_walls(const GLShaderProgram& shader)
+void Map::draw_walls(GLShaderProgram& shader)
 {
-	const auto projectPlaneDistance = static_cast<float>(m_window->get_frame_buffer_width() /
-														 (2 * tan(FOV / 2)));
+	const auto projectPlaneDistance = m_window->get_frame_buffer_width() /
+														 (2 * tan(FOV / 2));
 
 	for (int col = 0; col < m_rays->size(); col++)
 	{
@@ -127,8 +127,7 @@ void Map::draw_walls(const GLShaderProgram& shader)
 		const float yBot = yTop + wallHeight;
 
 		// Map column to screen-space within right viewport
-		const float colX = (static_cast<float>(col) / static_cast<float>(m_rays->size())) *
-			static_cast<float>(m_halfWidth) * 2;
+		const float colX = (col * Step * 2);
 
 		// Set uniforms based on tile number
 		if (generatedMap[ray.MapPosition.y][ray.MapPosition.x] == 2)
@@ -144,14 +143,14 @@ void Map::draw_walls(const GLShaderProgram& shader)
 			shader.set_uniform("uColor", glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
 		}
 
-		ray.draw_vertical_line(static_cast<int>(colX), yTop, static_cast<int>(colX), yBot);
+		ray.draw_vertical_line(colX, yTop, colX + 2 * Step, yBot);
 	}
 }
 
-void Map::draw_floors(const GLShaderProgram& shader)
+void Map::draw_floors(GLShaderProgram& shader)
 {
 }
 
-void Map::draw_ceilings(const GLShaderProgram& shader)
+void Map::draw_ceilings(GLShaderProgram& shader)
 {
 }
