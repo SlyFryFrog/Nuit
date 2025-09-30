@@ -37,22 +37,26 @@ void Player::_process(const double delta)
 {
 	glm::vec3 movement{};
 
-	if (InputManager::is_pressed(KEY_A))
-	{
-		movement.x -= Speed * static_cast<float>(delta);
-	}
-	if (InputManager::is_pressed(KEY_D))
-	{
-		movement.x += Speed * static_cast<float>(delta);
-	}
-	if (InputManager::is_pressed(KEY_S))
-	{
-		movement.z -= Speed * static_cast<float>(delta);
-	}
 	if (InputManager::is_pressed(KEY_W))
-	{
-		movement.z += Speed * static_cast<float>(delta);
-	}
+		movement += get_forward() * Speed * static_cast<float>(delta);
+	if (InputManager::is_pressed(KEY_S))
+		movement -= get_forward() * Speed * static_cast<float>(delta);
+	if (InputManager::is_pressed(KEY_D))
+		movement += get_right() * Speed * static_cast<float>(delta);
+	if (InputManager::is_pressed(KEY_A))
+		movement -= get_right() * Speed * static_cast<float>(delta);
+
+	if (InputManager::is_pressed(KEY_E))
+		Rotation -= RotationSpeed * static_cast<float>(delta);
+	if (InputManager::is_pressed(KEY_Q))
+		Rotation += RotationSpeed * static_cast<float>(delta);
+
+	// Wrap angle between 0 and 2*PI
+	if (Rotation < 0)
+		Rotation += 2 * PI;
+	if (Rotation > 2 * PI)
+		Rotation -= 2 * PI;
+
 	move_and_slide(movement);
 }
 
@@ -88,4 +92,14 @@ void Player::move_and_slide(const glm::vec3 movement)
 	{
 		Position.z = newZ;
 	}
+}
+
+glm::vec3 Player::get_forward() const
+{
+	return glm::normalize(glm::vec3{glm::cos(Rotation), 0.0f, glm::sin(Rotation)});
+}
+
+glm::vec3 Player::get_right() const
+{
+	return glm::normalize(glm::vec3{-glm::sin(Rotation), 0.0f, glm::cos(Rotation)});
 }

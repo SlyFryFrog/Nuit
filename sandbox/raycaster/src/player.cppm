@@ -15,10 +15,10 @@ export class Player final : Object
 
 public:
 	glm::vec3 Position{};
-	glm::vec3 Rotation{};
 	glm::vec3 Scale{1.0f};
-
-	float Speed = 5.0f;
+	float Rotation{PI_2};
+	float Speed{5.0f};
+	float RotationSpeed{2.5f};
 
 public:
 	Player();
@@ -29,4 +29,8 @@ public:
 	void _draw(GLShaderProgram& shader) override;
 
 	void move_and_slide(glm::vec3 movement);
+
+private:
+	[[nodiscard]] glm::vec3 get_forward() const;
+	[[nodiscard]] glm::vec3 get_right() const;
 };

@@ -53,7 +53,7 @@ SpacesInParentheses: false
 TabWidth: 4
 UseTab: Always
 InsertNewlineAtEOF: true
-InsertBraces: true
+InsertBraces: false
 SortIncludes: true
 ReflowComments: true
 PenaltyBreakComment: 60

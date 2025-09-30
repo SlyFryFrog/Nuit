@@ -23,7 +23,6 @@ Grid grid;
 Player player;
 Map map;
 constexpr auto CellSize = glm::vec2{20.0f, 20.0f};
-float angle;
 
 void reload_shaders();
 
@@ -88,25 +87,6 @@ int main()
 			map.save_map("data/map");
 		}
 
-		if (InputManager::is_pressed(KEY_E))
-		{
-			angle -= rotationSpeed * static_cast<float>(delta);
-		}
-		if (InputManager::is_pressed(KEY_Q))
-		{
-			angle += rotationSpeed * static_cast<float>(delta);
-		}
-
-		// Wrap angle between 0 and 2*PI
-		if (angle < 0)
-		{
-			angle += 2 * PI;
-		}
-		if (angle > 2 * PI)
-		{
-			angle -= 2 * PI;
-		}
-
 		player._process(delta);
 
 		rate = FOV / (static_cast<float>(window->get_frame_buffer_width()) / 2) * Step; // Size of viewport
@@ -144,15 +124,13 @@ void reload_shaders()
 
 void draw_left(GLShaderProgram& shader)
 {
-	constexpr float zoom = 10.0f;
-
 	const float vpWidth = static_cast<float>(window->get_frame_buffer_width()) / 2.0f;
 
 	const float vpHeight = static_cast<float>(window->get_frame_buffer_height());
 	const float aspect = vpWidth / vpHeight;
 
 	Window::set_viewport(0, 0, static_cast<int>(vpWidth), static_cast<int>(vpHeight));
-	const glm::mat4 proj = glm::ortho(-zoom * aspect, zoom * aspect, -zoom, zoom, -1.0f, 1.0f);
+	const glm::mat4 proj = glm::ortho(-Zoom * aspect, Zoom * aspect, -Zoom, Zoom, -1.0f, 1.0f);
 
 	const glm::mat4 view = glm::translate(glm::mat4(1.0f),
 										  -glm::vec3{player.Position.x, player.Position.z, 0.0f});
@@ -173,6 +151,7 @@ void draw_left(GLShaderProgram& shader)
 	threads.reserve(numThreads);
 
 	const int raysPerThread = rays->size() / numThreads;
+	const float rayStart = player.Rotation + glm::radians(FOV / 2);	// We start drawing from left
 
 	for (int i = 0; i < numThreads; ++i)
 	{
@@ -184,9 +163,10 @@ void draw_left(GLShaderProgram& shader)
 
 				for (int j = start; j < end; ++j)
 				{
-					const float a = angle + glm::radians(j * -rate); // step x degrees
+					// We multiply degrees by -1 to make POV turn correctly
+					const float angle = rayStart + glm::radians(-j * rate); // step x degrees
 					rays->at(j).Position = glm::vec2{player.Position.x, player.Position.z};
-					rays->at(j).Direction = {cos(a), sin(a)};
+					rays->at(j).Direction = {cos(angle), sin(angle)};
 					rays->at(j).cast(generatedMap);
 				}
 			});
@@ -194,15 +174,11 @@ void draw_left(GLShaderProgram& shader)
 
 	// Wait for all threads to finish before proceeding
 	for (auto& thread : threads)
-	{
 		thread.join();
-	}
 
 	// Draw each ray, can't call to OpenGL on multiple threads
-	for (int i = 0; i < rays->size(); i++)
-	{
-		rays->at(i)._draw(shader);
-	}
+	for (auto & i : *rays)
+		i._draw(shader);
 
 
 	glm::ivec2 gridPos{-1, -1};	// Invalid grid coordinate by default
@@ -219,6 +195,13 @@ void draw_left(GLShaderProgram& shader)
 				   static_cast<int>(std::floor(worldPos.y))};
 	}
 
+	if (InputManager::is_pressed(KEY_8))
+		GLRenderer::set_polygon_mode(FILL);
+	else if (InputManager::is_pressed(KEY_9))
+		GLRenderer::set_polygon_mode(LINE);
+	else if (InputManager::is_pressed(KEY_0))
+		GLRenderer::set_polygon_mode(POINT);
+
 	// Since the map is a fixed size, must check if the gridPos is in-bounds
 	// Based on the key pressed, update the integer at the gridPos
 	if (gridPos.y >= 0 && gridPos.y < generatedMap.size())
@@ -226,21 +209,13 @@ void draw_left(GLShaderProgram& shader)
 		if (gridPos.x >= 0 && gridPos.x < generatedMap.at(gridPos.y).size())
 		{
 			if (InputManager::is_pressed(KEY_SPACE))
-			{
 				generatedMap.at(gridPos.y).at(gridPos.x) = 0;
-			}
 			else if (InputManager::is_pressed(KEY_1))
-			{
 				generatedMap.at(gridPos.y).at(gridPos.x) = 1;
-			}
 			else if (InputManager::is_pressed(KEY_2))
-			{
 				generatedMap.at(gridPos.y).at(gridPos.x) = 2;
-			}
 			else if (InputManager::is_pressed(KEY_3))
-			{
 				generatedMap.at(gridPos.y).at(gridPos.x) = 3;
-			}
 		}
 	}
 }

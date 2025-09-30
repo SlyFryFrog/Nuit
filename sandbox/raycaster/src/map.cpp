@@ -31,8 +31,6 @@ void Map::draw_perspective_view(GLShaderProgram& shader)
 	m_halfWidth = m_window->get_frame_buffer_width() / 2;
 	m_fullHeight = m_window->get_frame_buffer_height();
 
-	// uint32_t textureBuffer[halfWidth * fullHeight];
-
 	Window::set_viewport(m_halfWidth, 0, m_halfWidth, m_fullHeight);
 
 	const glm::mat4 proj = glm::ortho(0.0f, static_cast<float>(m_halfWidth) * 2,
@@ -44,7 +42,6 @@ void Map::draw_perspective_view(GLShaderProgram& shader)
 	shader.set_uniform("uModel", glm::mat4(1.0f));
 
 	draw_walls(shader);
-	shader.unbind(); // Optionally call unbind
 }
 
 void Map::generate()

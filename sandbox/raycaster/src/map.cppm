@@ -9,9 +9,10 @@ import ray_2d;
 import nuit;
 using namespace Nuit;
 
-export constexpr float WallTileSize = 1.0f; // Changes the ratio for the height of the walls
+export constexpr float WallTileSize = 2.0f; // Changes the ratio for the height of the walls
 export constexpr float FOV = 90;
-export constexpr float Step = 10;
+export constexpr float Step = 10.0f;
+export constexpr float Zoom = 10.0f;
 export float rate;
 
 export inline std::vector<std::vector<int>> generatedMap;
