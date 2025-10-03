@@ -1,4 +1,3 @@
-module;
 export module nuit:math;
 
 export namespace Nuit

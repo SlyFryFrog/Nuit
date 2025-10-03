@@ -22,74 +22,73 @@ Timer timer;
 Grid grid;
 Player player;
 Map map;
-constexpr auto CellSize = glm::vec2{20.0f, 20.0f};
 
+void init();
+void run();
+void shutdown();
 void reload_shaders();
-
 void draw_left(GLShaderProgram& shader);
 void draw_right(GLShaderProgram& shader);
 
-glm::ivec2 get_mouse_grid_position(glm::vec4 worldPos);
-
 int main()
 {
+	init();
+	run();
+	shutdown();
+
+	return 0;
+}
+
+void init()
+{
+	// Window setup and set pwd for correct pathing when accessing relative files
 	std::filesystem::current_path(WorkingDirectory);
 	window->init();
 	init_imgui(window->get_glfw_window());
+
+	// Renderer setup
 	GLRenderer::init();
+	reload_shaders();
 
-	map = Map(20, 20, window, rays);
-
-	// Before linking, we must create a new shader instance and then attach our desired shaders
-	shader_2d.create();
-	shader_2d.compile_and_attach("shaders/2d/vertex.vert", VERTEX);
-	shader_2d.compile_and_attach("shaders/2d/fragment.frag", FRAGMENT);
-	shader_2d.link();
-
-	shader_3d.create();
-	shader_3d.compile_and_attach("shaders/3d/vertex.vert", VERTEX);
-	shader_3d.compile_and_attach("shaders/3d/fragment.frag", FRAGMENT);
-	shader_3d.link();
-
+	// Setup map and grid overlay
+	map = Map(200, 200, window, rays);
 	map.load_map("data/map");
-	grid = Grid(glm::vec2{0, 0}, CellSize);
+	grid = Grid(glm::vec2{0, 0});
 	grid.generate(generatedMap);
+
 	player._init();
 	player.Position = glm::vec3{10, 0, 10};
+}
 
+void run()
+{
 	timer.start();
 	while (!window->is_done())
 	{
-		Window::clear();
-		constexpr float rotationSpeed = 2.5f;
 		const double delta = timer.delta();
+
+		Window::clear();
 		begin_imgui_frame();
 
 		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_Q}))
-		{
 			window->set_done(true);
-		}
 		if (InputManager::is_just_pressed(KEY_R))
-		{
 			reload_shaders();
-		}
-
+		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_S}))
+			map.save_map("data/map");
 		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_L}))
 		{
 			map.load_map("data/map");
 
-			grid = Grid(glm::vec2{0, 0}, CellSize);
+			grid = Grid(glm::vec2{0, 0});
 			grid.generate(generatedMap);
 		}
 
-		if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_S}))
-		{
-			map.save_map("data/map");
-		}
 
 		player._process(delta);
 
-		rate = FOV / (static_cast<float>(window->get_frame_buffer_width()) / 2) * Step; // Size of viewport
+		rate = FOV / (static_cast<float>(window->get_frame_buffer_width()) / 2) *
+			Step; // Size of viewport
 		rays->clear();
 		rays->resize(window->get_frame_buffer_width() / 2 / Step);
 
@@ -101,10 +100,11 @@ int main()
 
 		window->process();
 	}
+}
 
+void shutdown()
+{
 	shutdown_imgui();
-
-	return 0;
 }
 
 void reload_shaders()
@@ -151,7 +151,7 @@ void draw_left(GLShaderProgram& shader)
 	threads.reserve(numThreads);
 
 	const int raysPerThread = rays->size() / numThreads;
-	const float rayStart = player.Rotation + glm::radians(FOV / 2);	// We start drawing from left
+	const float rayStart = player.Rotation + glm::radians(FOV / 2); // We start drawing from left
 
 	for (int i = 0; i < numThreads; ++i)
 	{
@@ -177,11 +177,11 @@ void draw_left(GLShaderProgram& shader)
 		thread.join();
 
 	// Draw each ray, can't call to OpenGL on multiple threads
-	for (auto & i : *rays)
+	for (auto& i : *rays)
 		i._draw(shader);
 
 
-	glm::ivec2 gridPos{-1, -1};	// Invalid grid coordinate by default
+	glm::ivec2 gridPos{-1, -1}; // Invalid grid coordinate by default
 	if (const glm::vec2 mousePos = InputManager::get_mouse_position();
 		mousePos.x < window->get_width() / 2)
 	{
@@ -194,13 +194,6 @@ void draw_left(GLShaderProgram& shader)
 		gridPos = {static_cast<int>(std::floor(worldPos.x)),
 				   static_cast<int>(std::floor(worldPos.y))};
 	}
-
-	if (InputManager::is_pressed(KEY_8))
-		GLRenderer::set_polygon_mode(FILL);
-	else if (InputManager::is_pressed(KEY_9))
-		GLRenderer::set_polygon_mode(LINE);
-	else if (InputManager::is_pressed(KEY_0))
-		GLRenderer::set_polygon_mode(POINT);
 
 	// Since the map is a fixed size, must check if the gridPos is in-bounds
 	// Based on the key pressed, update the integer at the gridPos
@@ -222,5 +215,14 @@ void draw_left(GLShaderProgram& shader)
 
 void draw_right(GLShaderProgram& shader)
 {
+	if (InputManager::is_pressed(KEY_8))
+		GLRenderer::set_polygon_mode(FILL);
+	else if (InputManager::is_pressed(KEY_9))
+		GLRenderer::set_polygon_mode(LINE);
+	else if (InputManager::is_pressed(KEY_0))
+		GLRenderer::set_polygon_mode(POINT);
+
 	map.draw_perspective_view(shader);
+
+	GLRenderer::set_polygon_mode(FILL);
 }

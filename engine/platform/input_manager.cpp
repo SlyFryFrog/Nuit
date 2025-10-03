@@ -56,8 +56,8 @@ namespace Nuit
 			m_firstMouse = false;
 		}
 
-		double deltaX = xposIn - m_prevMouseX;
-		double deltaY = m_prevMouseY - yposIn;
+		const double deltaX = xposIn - m_prevMouseX;
+		const double deltaY = m_prevMouseY - yposIn;
 
 		m_prevMouseX = xposIn;
 		m_prevMouseY = yposIn;
@@ -151,7 +151,7 @@ namespace Nuit
 				(currentEvent->is_pressed() || currentEvent->is_just_pressed()))
 			{
 				tempRecentQueue.pop();
-				it++;
+				++it;
 			}
 			else if (!currentEvent->is_just_pressed())
 			{
@@ -221,6 +221,7 @@ namespace Nuit
 	{
 		return {m_prevMouseX, m_prevMouseY};
 	}
+
 	glm::vec2 InputManager::get_mouse_delta()
 	{
 		return {m_deltaX, m_deltaY};
@@ -236,7 +237,7 @@ namespace Nuit
 			m_recentQueue.pop();
 
 			// Copy element to other queue
-			if (is_pressed(event->get_key())) // Checks if event contains key and is pressed
+			if (event->is_pressed()) // Checks if event contains key and is pressed
 			{
 				tempQueue.emplace(event);
 			}

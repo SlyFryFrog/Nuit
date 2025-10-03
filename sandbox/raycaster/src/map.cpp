@@ -12,13 +12,13 @@ Map::Map()
 {
 }
 
-Map::Map(int width, int height)
+Map::Map(const int width, const int height) : m_width(width), m_height(height)
 {
 }
 
-Map::Map(int width, int height, const std::shared_ptr<Window>& window,
+Map::Map(const int width, const int height, const std::shared_ptr<Window>& window,
 		 const std::shared_ptr<std::vector<Ray>>& rays) :
-	m_rays(rays), m_window(window)
+	m_rays(rays), m_window(window), m_width(width), m_height(height)
 {
 }
 
@@ -46,6 +46,13 @@ void Map::draw_perspective_view(GLShaderProgram& shader)
 
 void Map::generate()
 {
+	for (int y = 0; y < m_height; y++)
+	{
+		for (int x = 0; x < m_width; x++)
+		{
+
+		}
+	}
 }
 
 void Map::load_map(const std::string& path)
@@ -67,7 +74,8 @@ void Map::load_map(const std::string& path)
 		std::vector<int> row;
 		int value;
 
-		while (iss >> value) {
+		while (iss >> value)
+		{
 			row.push_back(value);
 		}
 
@@ -97,8 +105,7 @@ void Map::save_map(const std::string& path)
 
 void Map::draw_walls(GLShaderProgram& shader)
 {
-	const auto projectPlaneDistance = m_window->get_frame_buffer_width() /
-														 (2 * tan(FOV / 2));
+	const auto projectPlaneDistance = m_window->get_frame_buffer_width() / (2 * tan(FOV / 2));
 
 	for (int col = 0; col < m_rays->size(); col++)
 	{

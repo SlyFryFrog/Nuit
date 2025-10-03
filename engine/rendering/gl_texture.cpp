@@ -23,11 +23,13 @@ namespace Nuit
 			return GL_NONE;
 		}
 	}
+
 	GLuint create_texture(const int width, const int height)
 	{
 		GLuint texID;
 		glGenTextures(1, &texID);
 		glBindTexture(GL_TEXTURE_2D, texID);
+
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

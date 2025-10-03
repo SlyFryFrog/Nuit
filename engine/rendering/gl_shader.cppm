@@ -57,13 +57,35 @@ namespace Nuit
 		 */
 		void attach_shader(GLuint shader) const;
 
-		void compile_and_attach(const std::string& file, GLenum type) const;
+		/**
+		 * @brief Compiles a given .glsl shader and attaches it to the shader program.
+		 *
+		 * @param file Shader file to be read.
+		 * @param type Type of shader (Vertex, Fragment, etc.).
+		 */
+		void compile_and_attach(const std::string& file, ShaderType type) const;
 
 		/**
-		 * Links all attached shaders to the shader program.
+		 * @brief Compiles a given string of code and attaches it to the shader program.
+		 *
+		 * @note This function does not read a file, only takes in a string containing .glsl code.
+		 *
+		 * @param contents .glsl shader contents.
+		 * @param type Type of shader (Vertex, Fragment, etc.).
+		 */
+		void compile_and_attach_contents(const std::string& contents, ShaderType type) const;
+
+		/**
+		 * @brief Links all attached shaders to the shader program.
 		 */
 		void link();
 
+		/**
+		 * @brief Returns the location of a given uniform in the currently active shader.
+		 *
+		 * @param name Uniform name defined in .glsl shader
+		 * @return The location of the uniform.
+		 */
 		[[nodiscard]] GLint get_uniform_location(const std::string& name);
 
 		void set_uniform(const std::string& name, const int value)

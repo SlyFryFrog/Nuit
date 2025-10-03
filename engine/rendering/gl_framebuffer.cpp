@@ -55,6 +55,7 @@ namespace Nuit
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
+
 	void GLFramebuffer::update(const int width, const int height)
 	{
 		m_width = width;

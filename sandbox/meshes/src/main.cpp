@@ -83,28 +83,19 @@ void process_input()
 {
 	// Close window
 	if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_Q}))
-	{
 		window.set_done(true);
-	}
 
+	// Reload shaders
 	if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_R}))
-	{
 		reload_shaders();
-	}
 
 	// Change polygon mode
 	if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_1}))
-	{
 		GLRenderer::set_polygon_mode(FILL);
-	}
 	else if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_2}))
-	{
 		GLRenderer::set_polygon_mode(LINE);
-	}
 	else if (InputManager::is_ordered_pressed({KEY_LEFT_CONTROL, KEY_3}))
-	{
 		GLRenderer::set_polygon_mode(POINT);
-	}
 }
 
 void reload_shaders()

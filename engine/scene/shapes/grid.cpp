@@ -10,14 +10,8 @@ namespace Nuit
 {
 	Grid::~Grid()
 	{
-		if (m_vbo)
-		{
-			glDeleteBuffers(1, &m_vbo);
-		}
-		if (m_vao)
-		{
-			glDeleteVertexArrays(1, &m_vao);
-		}
+		glDeleteBuffers(1, &m_vbo);
+		glDeleteVertexArrays(1, &m_vao);
 	}
 
 	void Grid::_draw(GLShaderProgram& shader)
@@ -37,9 +31,7 @@ namespace Nuit
 		// Get average X and Y of each space
 		size_t maxColumn = 0;
 		for (const auto& row : grid)
-		{
 			maxColumn = std::max(row.size(), maxColumn);
-		}
 
 		// Generate horizontal lines
 		for (int r = 0; r <= grid.size(); r++)

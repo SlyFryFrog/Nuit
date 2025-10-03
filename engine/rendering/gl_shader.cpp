@@ -51,7 +51,7 @@ namespace Nuit
 		}
 	}
 
-	void GLShaderProgram::compile_and_attach(const std::string& file, const GLenum type) const
+	void GLShaderProgram::compile_and_attach(const std::string& file, const ShaderType type) const
 	{
 		const auto rawData = File::read(file);
 
@@ -63,6 +63,28 @@ namespace Nuit
 
 		const char* data = rawData.value().c_str();
 
+		const GLuint shader = glCreateShader(type);
+		glShaderSource(shader, 1, &data, nullptr);
+		glCompileShader(shader);
+
+		GLint success;
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			char log[512];
+			glGetShaderInfoLog(shader, 512, nullptr, log);
+			std::println(std::cerr, "{0}", log);
+			return;
+		}
+
+		glAttachShader(m_program, shader);
+		glDeleteShader(shader);
+	}
+
+	void GLShaderProgram::compile_and_attach_contents(const std::string& contents,
+													  ShaderType type) const
+	{
+		const auto data = contents.c_str();
 		const GLuint shader = glCreateShader(type);
 		glShaderSource(shader, 1, &data, nullptr);
 		glCompileShader(shader);
@@ -95,7 +117,7 @@ namespace Nuit
 		}
 
 		// Reset uniform cache for newly created shader
-	    m_uniformsCache.clear();
+		m_uniformsCache.clear();
 	}
 
 	GLint GLShaderProgram::get_uniform_location(const std::string& name)

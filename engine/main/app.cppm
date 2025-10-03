@@ -5,24 +5,38 @@ export module nuit:app;
 
 import :layer;
 import :timer;
+import :window;
+import :gl_renderer;
 
 namespace Nuit
 {
 	export class App
 	{
+		std::string m_title{"Untitled Project"};
 		std::vector<std::unique_ptr<Layer>> m_layers;
 		Timer m_timer;
+		Window m_window;
 
 	public:
 		App() = default;
+		explicit App(const std::string& title) : m_title{title}
+		{
+		}
+
 		~App() = default;
+
+		void init()
+		{
+			m_window.init();
+			m_window.set_title(m_title);
+			GLRenderer::init();
+		}
 
 		void run()
 		{
-
 			m_timer.start();
 
-			while (true)
+			while (!m_window.is_done())
 			{
 				const double delta = m_timer.delta();
 				process_layers(delta);
@@ -34,7 +48,7 @@ namespace Nuit
 			m_layers.push_back(std::move(layer));
 		}
 
-		void init_layers()
+		void init_layers() const
 		{
 			for (const auto& layer : m_layers)
 			{
@@ -42,7 +56,7 @@ namespace Nuit
 			}
 		}
 
-		void process_layers(const double delta)
+		void process_layers(const double delta) const
 		{
 			for (const auto& layer : m_layers)
 			{
@@ -50,7 +64,7 @@ namespace Nuit
 			}
 		}
 
-		void render_layers()
+		void render_layers() const
 		{
 			for (const auto& layer : m_layers)
 			{

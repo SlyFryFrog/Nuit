@@ -16,11 +16,10 @@ namespace Nuit
 		GLuint m_vbo{};
 
 	public:
-		glm::vec2 Size{};
 
 		Grid() = default;
 
-		Grid(const glm::vec2& position, const glm::vec2& size) : Shape2D(position), Size(size)
+		Grid(const glm::vec2& position) : Shape2D(position)
 		{
 		}
 

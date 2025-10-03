@@ -42,9 +42,9 @@ void Player::_process(const double delta)
 	if (InputManager::is_pressed(KEY_S))
 		movement -= get_forward() * Speed * static_cast<float>(delta);
 	if (InputManager::is_pressed(KEY_D))
-		movement += get_right() * Speed * static_cast<float>(delta);
-	if (InputManager::is_pressed(KEY_A))
 		movement -= get_right() * Speed * static_cast<float>(delta);
+	if (InputManager::is_pressed(KEY_A))
+		movement += get_right() * Speed * static_cast<float>(delta);
 
 	if (InputManager::is_pressed(KEY_E))
 		Rotation -= RotationSpeed * static_cast<float>(delta);

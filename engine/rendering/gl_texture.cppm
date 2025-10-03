@@ -13,13 +13,22 @@ namespace Nuit
 	 */
 	export GLint get_image_format(int channelCount);
 
+	/**
+	 * @brief Creates an empty texture of widthxheight size.
+	 *
+	 * @note This is useful for when you want to draw to a texture (i.e. for a framebuffer).
+	 *
+	 * @param width Image width.
+	 * @param height Image Height.
+	 * @return Texture ID.
+	 */
 	export GLuint create_texture(int width, int height);
 
 	/**
 	 * @brief Loads an image for use in OpenGL.
 	 *
 	 * @param filename Image being loaded.
-	 * @return OpenGL texture ID.
+	 * @return Texture ID.
 	 */
 	export GLuint load_texture(const std::string& filename);
 
@@ -29,12 +38,12 @@ namespace Nuit
 	 *
 	 * @param width Width of the texture being generated.
 	 * @param height Height of the texture being generated.
-	 * @return GL Texture ID.
+	 * @return Texture ID.
 	 */
 	export GLuint load_missing_texture(int width = 32, int height = 32);
 
 	/**
-	 * @brief Creates a empty, minimal texture to silence warnings.
+	 * @brief Creates an empty, minimal texture to silence warnings.
 	 */
 	export void init_dummy_texture();
 
