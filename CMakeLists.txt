@@ -33,7 +33,7 @@ find_package(imgui CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(assimp REQUIRED)
 
-add_library(stb_image SHARED ${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb_image.cpp)
+add_library(stb_image STATIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb_image.cpp)
 
 #####################
 # Create executable #

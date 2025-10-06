@@ -11,7 +11,7 @@ using namespace Nuit;
 
 export constexpr float WallTileSize = 1.25f; // Changes the ratio for the height of the walls
 export constexpr float FOV = 90;
-export constexpr float Step = 20.0f;			// Step size used when drawing walls
+export constexpr float Step = 2.0f;			// Step size used when drawing walls
 export constexpr float Zoom = 10.0f;
 export float rate;
 

@@ -1,4 +1,9 @@
 module;
+// For some reason the #define in stb_image.cpp doesn't get defined on Linux
+#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#endif
+
 #include <GL/glew.h>
 #include <iostream>
 #include <print>
@@ -51,7 +56,7 @@ namespace Nuit
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		int width, height, nrChannels;
-		unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
+		const auto data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 0);
 		if (data)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, get_image_format(nrChannels), width, height, 0,
@@ -60,7 +65,7 @@ namespace Nuit
 		}
 		else
 		{
-			std::println(std::cerr, "Failed to load texture: {}", filename);
+			std::println(std::cerr, "Failed to load texture: {} \n{}", filename, stbi_failure_reason());
 			glDeleteTextures(1, &texID);
 
 			return 0;
