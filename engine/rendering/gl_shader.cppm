@@ -10,12 +10,15 @@ import :utils;
 
 namespace Nuit
 {
+	/**
+	 * @brief OpenGL shader types (requires OpenGL 4.1+ for full support).
+	 */
 	export enum ShaderType {
-		VERTEX = GL_VERTEX_SHADER,
-		FRAGMENT = GL_FRAGMENT_SHADER,
-		GEOMETRY = GL_GEOMETRY_SHADER,
-		TESSELLATION = GL_TESS_CONTROL_SHADER,
-		COMPUTE = GL_COMPUTE_SHADER
+		VERTEX = GL_VERTEX_SHADER,			   ///< Vertex shader (OpenGL 2.0+)
+		FRAGMENT = GL_FRAGMENT_SHADER,		   ///< Fragment shader (OpenGL 2.0+)
+		GEOMETRY = GL_GEOMETRY_SHADER,		   ///< Geometry shader (OpenGL 3.2+)
+		TESSELLATION = GL_TESS_CONTROL_SHADER, ///< Tessellation control shader (OpenGL 4.0+)
+		COMPUTE = GL_COMPUTE_SHADER			   ///< Compute shader (OpenGL 4.3+)
 	};
 
 	export class GLShaderProgram

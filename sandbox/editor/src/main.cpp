@@ -3,6 +3,7 @@
 
 import editor;
 import nuit;
+import nuit.extensions.imgui;
 
 using namespace Nuit;
 

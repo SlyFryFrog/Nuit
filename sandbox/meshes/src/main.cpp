@@ -3,6 +3,7 @@
 #include <filesystem>
 
 import nuit;
+import nuit.extensions.imgui;
 import camera;
 
 using namespace Nuit;

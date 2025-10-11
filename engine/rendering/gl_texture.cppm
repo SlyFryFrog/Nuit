@@ -1,6 +1,7 @@
 module;
 #include <GL/glew.h>
 #include <vector>
+#include <string>
 export module nuit:gl_texture;
 
 namespace Nuit

@@ -7,6 +7,7 @@
 #include <thread>
 
 import nuit;
+import nuit.extensions.imgui;
 import player;
 import map;
 import ray_2d;

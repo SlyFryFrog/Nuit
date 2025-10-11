@@ -5,6 +5,7 @@ module;
 #include <glm/vec3.hpp>
 #include <optional>
 #include <string>
+#include <memory>
 export module nuit:mesh;
 
 import :gl_shader;
@@ -110,20 +111,15 @@ namespace Nuit
 
 	public:
 		MeshLoader() = default;
-
 		~MeshLoader() = default;
 
 		bool load(const std::string& filename);
-
 		void draw(GLShaderProgram& shader) const;
 
 	private:
 		bool load_obj(const std::string& filename);
-
 		void load_mtllib(const std::string& filename);
-
 		void reset();
-
 		void set_attributes();
 	};
 } // namespace Nuit

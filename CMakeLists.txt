@@ -82,6 +82,9 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     )
 endif()
 
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/extensions)
+
 if (BUILD_SANDBOX)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/sandbox)
 endif()

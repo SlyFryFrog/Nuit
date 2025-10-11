@@ -15,6 +15,7 @@ module;
 #include <sstream>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 module nuit;
 
 namespace Nuit

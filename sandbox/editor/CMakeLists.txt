@@ -53,6 +53,7 @@ endif()
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
         Nuit
+        ImguiExtension
         glm::glm
         glfw
         OpenGL::GL

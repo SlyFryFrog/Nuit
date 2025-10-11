@@ -16,7 +16,9 @@ public:
 	glm::vec2 Direction;
 	glm::vec2 EndPosition;
 	glm::ivec2 MapPosition;
-	bool Hit{false};
+	glm::vec2 HitPosition;
+	float TexCoordX;
+	bool Hit{};
 
 public:
 	Ray2D();
