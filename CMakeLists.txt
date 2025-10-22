@@ -26,12 +26,12 @@ file(GLOB_RECURSE MODULES
 # External libraries #
 ######################
 
+find_package(assimp REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
-find_package(GLEW CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
+find_package(GLEW CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(assimp REQUIRED)
 
 add_library(stb_image STATIC ${CMAKE_CURRENT_SOURCE_DIR}/vendor/stb_image.cpp)
 

@@ -12,7 +12,7 @@
     },
     {
       "inherits": "abstract",
-      "name": "Debug",
+      "name": "AbstractDebug",
       "binaryDir": "${sourceDir}/build/Debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
@@ -20,7 +20,7 @@
     },
     {
       "inherits": "abstract",
-      "name": "Release",
+      "name": "AbstractRelease",
       "binaryDir": "${sourceDir}/build/Release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
